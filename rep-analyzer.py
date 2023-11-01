@@ -1,9 +1,12 @@
 import pandas as pd
-import re
+import matplotlib.pyplot as plt
 import tkinter as tk
+import re
 from tkinter import filedialog
 
+
 # TODO add gui window to select file, date range, and output file location/name
+# TODO store output data in a separate directory
 
 # Create the Tkinter root
 root = tk.Tk()
@@ -37,7 +40,7 @@ details_df = pd.DataFrame({
     'Position': position,
     'Symbol': symbol,
     'Quantity': quantity,
-    'Take Profit Price': price,  # This is not the price at which the position was opened, add that one too
+    'Take Profit Price': price,  # This is not the price at which the position was opened, add that one too. Use the close time in the history csv file to match with this data.
     'Balance Before': df['Balance Before'],
     'Balance After': df['Balance After'],
     'P&L': df['Balance After'] - df['Balance Before'],
@@ -51,6 +54,14 @@ batting_average = [details_df[details_df['P&L'] > 0]['P&L'].count() / details_df
 average_win_percentage = [details_df[details_df['P&L'] > 0]['%'].mean()]
 average_loss_percentage = [details_df[details_df['P&L'] < 0]['%'].mean()]
 win_loss_ratio_percentage = [details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean())]
+
+# Create the pie chart
+labels = ['Total Return', 'Average Return', 'Batting Average', 'Average Win', 'Average Loss', 'Win Loss Ratio']
+sizes = [total_return_percentage[0], average_return_percentage[0], batting_average[0], average_win_percentage[0], abs(average_loss_percentage[0]), win_loss_ratio_percentage[0]]
+plt.bar(labels, sizes, color=['green', 'green', 'green', 'green', 'red', 'green'])
+
+# Save the pie chart as an image
+plt.savefig('pie_chart.png')
 
 # Create a new DataFrame with only the columns we need for total values
 total_df = pd.DataFrame({
@@ -89,5 +100,6 @@ with open('output.html', 'w') as f:
     f.write(details_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
     f.write('<h2>Total Values</h2>\n')
     f.write(total_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
+    f.write('<img src="pie_chart.png" alt="Pie Chart">\n')
     f.write('</body>\n')
     f.write('</html>\n')
