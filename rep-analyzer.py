@@ -42,5 +42,29 @@ new_df = pd.DataFrame({
     '%': (df['Balance After'] - df['Balance Before']) / df['Balance Before'] * 100,
 })
 
-# Export the new DataFrame to an HTML file
-new_df.to_html('output.html', index=False, justify='center', border=1, bold_rows=True, na_rep='')
+# Export the new DataFrame to an HTML file with CSS styling
+with open('output.html', 'w') as f:
+    f.write('<html>\n')
+    f.write('<head>\n')
+    f.write('<style>\n')
+    f.write('table {\n')
+    f.write('  border-collapse: collapse;\n')
+    f.write('  width: 100%;\n')
+    f.write('}\n')
+    f.write('th, td {\n')
+    f.write('  text-align: left;\n')
+    f.write('  padding: 8px;\n')
+    f.write('}\n')
+    f.write('tr:nth-child(even) {\n')
+    f.write('  background-color: #f2f2f2;\n')
+    f.write('}\n')
+    f.write('th {\n')
+    f.write('  background-color: #4CAF50;\n')
+    f.write('  color: white;\n')
+    f.write('}\n')
+    f.write('</style>\n')
+    f.write('</head>\n')
+    f.write('<body>\n')
+    f.write(new_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
+    f.write('</body>\n')
+    f.write('</html>\n')
