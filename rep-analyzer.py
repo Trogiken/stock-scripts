@@ -3,6 +3,8 @@ import re
 import tkinter as tk
 from tkinter import filedialog
 
+# TODO add gui window to select file, date range, and output file location/name
+
 # Create the Tkinter root
 root = tk.Tk()
 root.withdraw()
