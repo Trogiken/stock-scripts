@@ -32,22 +32,34 @@ quantity = df['Action'].apply(lambda x: re.search(shares_pattern, x).group(1))
 price = df['Action'].apply(lambda x: re.search(price_pattern, x).group(1))
 
 # Create a new DataFrame with only the columns we need
-new_df = pd.DataFrame({
+details_df = pd.DataFrame({
     'Time': df['Time'],
-    'position': position,
+    'Position': position,
     'Symbol': symbol,
     'Quantity': quantity,
-    'Price *Not buy Price*': price,  # This is not the price at which the position was opened, add that one too
+    'Take Profit Price': price,  # This is not the price at which the position was opened, add that one too
     'Balance Before': df['Balance Before'],
     'Balance After': df['Balance After'],
     'P&L': df['Balance After'] - df['Balance Before'],
     '%': (df['Balance After'] - df['Balance Before']) / df['Balance Before'] * 100,
 })
 
+# total_return_amount = [details_df['P&L'].sum()]
+total_return_percentage = [details_df['%'].sum()]
+average_return_percentage = [details_df['%'].mean()]
+batting_average = [details_df[details_df['P&L'] > 0]['P&L'].count() / details_df['P&L'].count() * 100]
+average_win_percentage = [details_df[details_df['P&L'] > 0]['%'].mean()]
+average_loss_percentage = [details_df[details_df['P&L'] < 0]['%'].mean()]
+win_loss_ratio_percentage = [details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean())]
+
 # Create a new DataFrame with only the columns we need for total values
 total_df = pd.DataFrame({
-    'Total P&L': [new_df['P&L'].sum()],
-    'Total %': [new_df['%'].sum()],
+    'Total Return': [f"{total_return_percentage[0]:,.2f}%"],
+    'Average Return': [f"{average_return_percentage[0]:,.2f}%"],
+    'Batting Average': [f"{batting_average[0]:,.2f}%"],
+    'Average Win': [f"{average_win_percentage[0]:,.2f}%"],
+    'Average Loss': [f"{average_loss_percentage[0]:,.2f}%"],
+    'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]:,.2f}%"],
 })
 
 # Export the new DataFrame and total DataFrame to an HTML file with CSS styling
@@ -74,7 +86,7 @@ with open('output.html', 'w') as f:
     f.write('</head>\n')
     f.write('<body>\n')
     f.write('<h2>Trade Details</h2>\n')
-    f.write(new_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
+    f.write(details_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
     f.write('<h2>Total Values</h2>\n')
     f.write(total_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
     f.write('</body>\n')
