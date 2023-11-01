@@ -42,7 +42,13 @@ new_df = pd.DataFrame({
     '%': (df['Balance After'] - df['Balance Before']) / df['Balance Before'] * 100,
 })
 
-# Export the new DataFrame to an HTML file with CSS styling
+# Create a new DataFrame with only the columns we need for total values
+total_df = pd.DataFrame({
+    'Total P&L': [new_df['P&L'].sum()],
+    'Total %': [new_df['%'].sum()],
+})
+
+# Export the new DataFrame and total DataFrame to an HTML file with CSS styling
 with open('output.html', 'w') as f:
     f.write('<html>\n')
     f.write('<head>\n')
@@ -65,6 +71,9 @@ with open('output.html', 'w') as f:
     f.write('</style>\n')
     f.write('</head>\n')
     f.write('<body>\n')
+    f.write('<h2>Trade Details</h2>\n')
     f.write(new_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
+    f.write('<h2>Total Values</h2>\n')
+    f.write(total_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
     f.write('</body>\n')
     f.write('</html>\n')
