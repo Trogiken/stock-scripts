@@ -17,6 +17,7 @@ df = pd.read_csv(file_path, sep=',')
 df['Balance Before'] = df['Balance Before'].str.replace('\xa0', '').astype(float)
 df['Balance After'] = df['Balance After'].str.replace('\xa0', '').astype(float)
 
+# regex patterns to extract the data we need
 symbol_pattern = r"symbol (\w+:\w+)"
 price_pattern = r"price (\d+\.\d+)"
 shares_pattern = r"for (\d+) shares"
@@ -34,7 +35,7 @@ new_df = pd.DataFrame({
     'position': position,
     'Symbol': symbol,
     'Quantity': quantity,
-    'Price': price,  # This is not the price at which the position was opened, add that one too
+    'Price *Not buy Price*': price,  # This is not the price at which the position was opened, add that one too
     'Balance Before': df['Balance Before'],
     'Balance After': df['Balance After'],
     'P&L': df['Balance After'] - df['Balance Before'],
