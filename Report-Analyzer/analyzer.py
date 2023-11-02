@@ -66,8 +66,8 @@ def analyze_data(account_history_path):
         position = re.search(position_type_pattern, row['Action']).group(1)  # long or short position
         symbol = re.search(symbol_pattern, row['Action']).group(1)  # symbol of the stock
         quantity = re.search(shares_pattern, row['Action']).group(1)  # quantity of shares
-        opened_price = float(re.search(closed_price_pattern, row['Action']).group(1)) + ((row['Balance After'] - row['Balance Before']) / int(quantity))  # price at which the position was opened
-        closed_price = re.search(closed_price_pattern, row['Action']).group(1)  # price at which the position was closed
+        opened_price = round(float(re.search(closed_price_pattern, row['Action']).group(1)) + ((row['Balance After'] - row['Balance Before']) / int(quantity)), 2)  # price at which the position was opened
+        closed_price = round(float(re.search(closed_price_pattern, row['Action']).group(1)), 2)  # price at which the position was closed
         details_list.append({
             'Time': row['Time'],
             'Position': position,
@@ -75,31 +75,31 @@ def analyze_data(account_history_path):
             'Quantity': quantity,
             'Opened Price': opened_price,
             'Closed Price': closed_price,
-            'Balance Before': row['Balance Before'],
-            'Balance After': row['Balance After'],
-            'P&L': row['Balance After'] - row['Balance Before'],
-            '%': (row['Balance After'] - row['Balance Before']) / row['Balance Before'] * 100,
+            'Balance Before': round(row['Balance Before'], 2),
+            'Balance After': round(row['Balance After'], 2),
+            'P&L': round(row['Balance After'] - row['Balance Before'], 2),
+            '%': round((row['Balance After'] - row['Balance Before']) / row['Balance Before'] * 100, 2),
         })
 
     # Create a new DataFrame with only the columns we need
     details_df = pd.DataFrame(details_list)
 
     # total_return_amount = [details_df['P&L'].sum()]
-    total_return_percentage = [details_df['%'].sum()]
-    average_return_percentage = [details_df['%'].mean()]
-    batting_average = [details_df[details_df['P&L'] > 0]['P&L'].count() / details_df['P&L'].count() * 100]
-    average_win_percentage = [details_df[details_df['P&L'] > 0]['%'].mean()]
-    average_loss_percentage = [details_df[details_df['P&L'] < 0]['%'].mean()]
-    win_loss_ratio_percentage = [details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean())]
+    total_return_percentage = [round(details_df['%'].sum(), 2)]
+    average_return_percentage = [round(details_df['%'].mean(), 2)]
+    batting_average = [round(details_df[details_df['P&L'] > 0]['P&L'].count() / details_df['P&L'].count() * 100, 2)]
+    average_win_percentage = [round(details_df[details_df['P&L'] > 0]['%'].mean(), 2)]
+    average_loss_percentage = [round(details_df[details_df['P&L'] < 0]['%'].mean(), 2)]
+    win_loss_ratio_percentage = [round(details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean()), 2)]
 
     # Create a new DataFrame with only the columns we need for total values
     total_df = pd.DataFrame({
-        'Total Return': [f"{total_return_percentage[0]:,.2f}%"],
-        'Average Return': [f"{average_return_percentage[0]:,.2f}%"],
-        'Batting Average': [f"{batting_average[0]:,.2f}%"],
-        'Average Win': [f"{average_win_percentage[0]:,.2f}%"],
-        'Average Loss': [f"{average_loss_percentage[0]:,.2f}%"],
-        'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]:,.2f}%"],
+        'Total Return': [f"{total_return_percentage[0]}%"],
+        'Average Return': [f"{average_return_percentage[0]}%"],
+        'Batting Average': [f"{batting_average[0]}%"],
+        'Average Win': [f"{average_win_percentage[0]}%"],
+        'Average Loss': [f"{average_loss_percentage[0]}%"],
+        'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]}%"],
     })
 
     # Create the pie chart TODO make this a bar graphs of monthly data
