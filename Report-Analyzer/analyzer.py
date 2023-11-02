@@ -40,7 +40,7 @@ def analyze_data(account_history_path, history):
         'Position': position,
         'Symbol': symbol,
         'Quantity': quantity,
-        'Take Profit Price': price,  # This is not the price at which the position was opened, add that one too. Use the close time in the history csv file to match with this data.
+        'Take Profit Price': price,  # TODO This is not the price at which the position was opened, add that one too. Use the close time in the history csv file to match with this data.
         'Balance Before': acc_df['Balance Before'],
         'Balance After': acc_df['Balance After'],
         'P&L': acc_df['Balance After'] - acc_df['Balance Before'],
@@ -136,8 +136,11 @@ def get_account_path(): # TODO add correct csv file check
     account_history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
     if account_history_path:
         acc_button.configure(bg='green', fg='white')
+        if history_path:
+            export_button.configure(bg='blue', fg='white')
     else:
         acc_button.configure(bg='grey', fg='black')
+        export_button.configure(bg='red', fg='white')
 
 def get_history_path():  # TODO add correct csv file check
     """Open csv file and store path in global variable"""
@@ -145,8 +148,11 @@ def get_history_path():  # TODO add correct csv file check
     history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
     if history_path:
         history_button.configure(bg='green', fg='white')
+        if account_history_path:
+            export_button.configure(bg='blue', fg='white')
     else:
         history_button.configure(bg='grey', fg='black')
+        export_button.configure(bg='red', fg='white')
 
 def export():
     """Check if both csv files are selected, analyze data, and export html file"""
