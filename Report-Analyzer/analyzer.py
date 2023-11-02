@@ -1,11 +1,41 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import tkinter as tk
-import re
 import os
-import shutil
+import sys
 from pathlib import Path
-from tkinter import filedialog
+
+import_error = False
+
+try:
+    import pandas as pd
+except ImportError:
+    import_error = True
+    print("Please install pandas package: pip install pandas")
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    import_error = True
+    print("Please install matplotlib package: pip install matplotlib")
+try:
+    import tkinter as tk
+    from tkinter import filedialog
+except ImportError:
+    import_error = True
+    print("Please install tkinter package: pip install tkinter")
+try:
+    import re
+except ImportError:
+    import_error = True
+    print("Please install re package: pip install re")
+try:
+    import shutil
+except ImportError:
+    import_error = True
+    print("Please install shutil package: pip install shutil")
+
+
+if import_error:
+    input("\nPress ENTER to exit...")
+    sys.exit()
+
 
 
 # TODO add gui window to select file, date range, and output file location/name
