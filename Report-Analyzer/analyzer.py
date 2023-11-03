@@ -40,9 +40,7 @@ if import_error:
     sys.exit()
 
 
-# TODO add gui window to select file, date range, and output file location/name
-# TODO if no date range, sort by months of data into separate tables
-# TODO store output data in a separate directory
+# TODO Add monthly, and yearly summarys
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
 
 # Original Short Sale Price = Profit Price + (Profit Price - (After Balance - Before Balance) / Quantity)
