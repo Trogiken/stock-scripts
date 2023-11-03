@@ -148,55 +148,60 @@ def export_html(details_df, total_df, export_location):
         f.write('</html>\n')
 
 
-# Create the Tkinter root
-root = tk.Tk()
-root.title("Report Analyzer")
-root.geometry("300x300")
-root.resizable(True, True)
-root.config(background='cyan')
-root.iconphoto(False, tk.PhotoImage(file=os.path.join(str(Path(__file__).resolve().parents[0]), 'ico.png')))
+def main():
+    # Create the Tkinter root
+    root = tk.Tk()
+    root.title("Report Analyzer")
+    root.geometry("300x300")
+    root.resizable(True, True)
+    root.config(background='cyan')
+    root.iconphoto(False, tk.PhotoImage(file=os.path.join(str(Path(__file__).resolve().parents[0]), 'ico.png')))
 
-# Create a frame with padding
-content_frame = tk.Frame(root, padx=20, pady=20)
-content_frame.pack(fill=tk.BOTH, expand=True)
+    # Create a frame with padding
+    content_frame = tk.Frame(root, padx=20, pady=20)
+    content_frame.pack(fill=tk.BOTH, expand=True)
 
-account_history_path = ""
+    account_history_path = ""
 
-def get_account_path(): # TODO add correct csv file check
-    """Open csv file and store path in global variable"""
-    global account_history_path
-    account_history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-    if account_history_path:
-        acc_button.configure(bg='green', fg='white')
-        export_button.configure(bg='blue', fg='white')
-    else:
-        acc_button.configure(bg='grey', fg='black')
-        export_button.configure(bg='red', fg='white')
-
-def export():
-    """Check if both csv files are selected, analyze data, and export html file"""
-    if account_history_path == "":
-        tk.messagebox.showerror("Error", "Please select both account history and history CSV files.")
-    else:
-        data_frames = analyze_data(account_history_path)
-        export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
-            
-        if export_location:
-            export_html(data_frames[0], data_frames[1], export_location)
-            tk.messagebox.showinfo("Success", "HTML file exported successfully.")
+    def get_account_path(): # TODO add correct csv file check
+        """Open csv file and store path in global variable"""
+        global account_history_path
+        account_history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+        if account_history_path:
+            acc_button.configure(bg='green', fg='white')
+            export_button.configure(bg='blue', fg='white')
         else:
-            tk.messagebox.showerror("Error", "Please select a valid export location.")
+            acc_button.configure(bg='grey', fg='black')
+            export_button.configure(bg='red', fg='white')
+
+    def export():
+        """Check if both csv files are selected, analyze data, and export html file"""
+        if account_history_path == "":
+            tk.messagebox.showerror("Error", "Please select the account history CSV file.")
+        else:
+            data_frames = analyze_data(account_history_path)
+            export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
+                
+            if export_location:
+                export_html(data_frames[0], data_frames[1], export_location)
+                tk.messagebox.showinfo("Success", "HTML file exported successfully.")
+            else:
+                tk.messagebox.showerror("Error", "Please select a valid export location.")
 
 
-acc_button = tk.Button(content_frame, text="Select 'Account History' CSV", command=get_account_path)
-acc_button.configure(bg='grey', fg='black', font=('Arial', 12), width=30)
-acc_button.pack()
+    acc_button = tk.Button(content_frame, text="Select 'Account History' CSV", command=get_account_path)
+    acc_button.configure(bg='grey', fg='black', font=('Arial', 12), width=30)
+    acc_button.pack()
 
-export_button = tk.Button(content_frame, text="Export HTML", command=export)
-export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
-export_button.pack()
+    export_button = tk.Button(content_frame, text="Export HTML", command=export)
+    export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
+    export_button.pack()
 
-version_label = tk.Label(root, text="Version Beta.1.0", font=('Arial', 10))
-version_label.pack(side=tk.RIGHT, anchor=tk.S)
+    version_label = tk.Label(root, text="Version Beta.1.0", font=('Arial', 10))
+    version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
-root.mainloop()
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
