@@ -57,44 +57,17 @@ def analyze_data(account_history_path):
     closed_price_pattern = r"price (\d+\.\d+)"
     shares_pattern = r"for (\d+) shares"
     position_type_pattern = r"Close (long|short) position"
-    commission_pattern = r"Commission for: (Enter|Close) (\w+) position for symbol (\w+:\w+) at price (\d+\.\d+) for (\d+) shares"
 
+    # Apply the regex patterns to each element of the 'Action' column
     details_list = []
-    commission_records = {}  # Store commission records by time
-
     for _, row in acc_df.iterrows():
-        if "Commission" in row['Action']:
-            match = re.search(commission_pattern, row['Action'])
-            if match:
-                action, position_type, symbol, _, shares = match.groups()
-                commission_records[row['Time']] = {
-                    'action': action,
-                    'position_type': position_type,
-                    'symbol': symbol,
-                    'commission': row['P&L'],  # commission is stored in the P&L column  # FIXME troubleshoot P&L
-                    'shares': int(shares)
-                }
-            print(commission_records)
+        if "Commission" in row['Action']:  # TODO add commission to P&L, and make it a separate column
             continue
-    
         position = re.search(position_type_pattern, row['Action']).group(1)  # long or short position
         symbol = re.search(symbol_pattern, row['Action']).group(1)  # symbol of the stock
         quantity = re.search(shares_pattern, row['Action']).group(1)  # quantity of shares
-        opened_price_match = re.search(closed_price_pattern, row['Action'])
-        opened_price = float(opened_price_match.group(1)) if opened_price_match else 0.0  # price at which the position was opened
-        closed_price_match = re.search(closed_price_pattern, row['Action'])
-        closed_price = float(closed_price_match.group(1)) if closed_price_match else 0.0  # price at which the position was closed
-        balance_before = round(row['Balance Before'], 2)
-        commission = 0.0  # Initialize commission to 0
-
-        if row['Time'] in commission_records:
-            commission_record = commission_records[row['Time']]
-            commission = commission_record['commission'] # * commission_record['shares']  # Different brokers calculate commission differently
-            if commission_record['action'] == 'Enter':
-                balance_before -= commission
-            elif commission_record['action'] == 'Close':
-                balance_before += commission
-
+        opened_price = round(float(re.search(closed_price_pattern, row['Action']).group(1)) + ((row['Balance After'] - row['Balance Before']) / int(quantity)), 2)  # price at which the position was opened
+        closed_price = round(float(re.search(closed_price_pattern, row['Action']).group(1)), 2)  # price at which the position was closed
         details_list.append({
             'Time': row['Time'],
             'Position': position,
@@ -102,11 +75,11 @@ def analyze_data(account_history_path):
             'Quantity': quantity,
             'Opened Price': opened_price,
             'Closed Price': closed_price,
-            'Balance Before': balance_before,
-            'Balance After': row['Balance After'],
-            'P&L': round(row['Balance After'] - balance_before, 2),
-            'Commission': round(commission, 2),  # Add commission as a separate column
-            '%': round((row['Balance After'] - balance_before) / balance_before * 100, 2),
+            # 'Commission': 'TODO'
+            'Balance Before': round(row['Balance Before'], 2),
+            'Balance After': round(row['Balance After'], 2),
+            'P&L': round(row['Balance After'] - row['Balance Before'], 2),
+            '%': round((row['Balance After'] - row['Balance Before']) / row['Balance Before'] * 100, 2),
         })
 
     # Create a new DataFrame with only the columns we need
@@ -118,8 +91,7 @@ def analyze_data(account_history_path):
     batting_average = [round(details_df[details_df['P&L'] > 0]['P&L'].count() / details_df['P&L'].count() * 100, 2)]
     average_win_percentage = [round(details_df[details_df['P&L'] > 0]['%'].mean(), 2)]
     average_loss_percentage = [round(details_df[details_df['P&L'] < 0]['%'].mean(), 2)]
-    win_loss_ratio_percentage = [round(
-        details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean()), 2)]
+    win_loss_ratio_percentage = [round(details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean()), 2)]
 
     # Create a new DataFrame with only the columns we need for total values
     total_df = pd.DataFrame({
@@ -131,9 +103,13 @@ def analyze_data(account_history_path):
         'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]}%"],
     })
 
+    # Create the pie chart TODO make this a bar graphs of monthly data
+    # labels = ['Total Return', 'Average Return', 'Batting Average', 'Average Win', 'Average Loss', 'Win Loss Ratio']
+    # sizes = [total_return_percentage[0], average_return_percentage[0], batting_average[0], average_win_percentage[0], abs(average_loss_percentage[0]), win_loss_ratio_percentage[0]]
+    # plt.bar(labels, sizes, color=['green', 'green', 'green', 'green', 'red', 'green'])
+    # plt.savefig(os.path.join(str(Path(__file__).resolve()), 'output', 'pie_chart.png'))
+
     return details_df, total_df
-
-
 
 
 def export_html(details_df, total_df, export_location):
