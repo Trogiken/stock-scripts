@@ -43,8 +43,6 @@ if import_error:
 # TODO Add monthly, and yearly summarys
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
 
-# Original Short Sale Price = Profit Price + (Profit Price - (After Balance - Before Balance) / Quantity)
-
 def analyze_data(account_history_path):
     """Analyze the data from the CSV file and return the dataframe with the results"""
     # Read the CSV file
