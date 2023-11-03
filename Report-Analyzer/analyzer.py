@@ -4,6 +4,11 @@ import sys
 import_error = False
 
 try:
+    import webbrowser
+except ImportError:
+    import_error = True
+    print("Please install webbrowser package: pip install webbrowser")
+try:
     import pandas as pd
 except ImportError:
     import_error = True
@@ -182,7 +187,8 @@ def export():
             
         if export_location:
             export_html(data_frames[0], data_frames[1], export_location)
-            tk.messagebox.showinfo("Success", "HTML file exported successfully.")
+            if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
+                webbrowser.open(export_location)
         else:
             tk.messagebox.showerror("Error", "Please select a valid export location.")
 
@@ -195,7 +201,7 @@ export_button = tk.Button(content_frame, text="Export HTML", command=export)
 export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
 export_button.pack()
 
-version_label = tk.Label(root, text="Version Beta.1.0", font=('Arial', 10))
+version_label = tk.Label(root, text="Version Beta.1.0.1", font=('Arial', 10))
 version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
 root.mainloop()
