@@ -56,14 +56,17 @@ def analyze_data(account_history_path):
 
     # regex patterns to extract the data we need
     symbol_pattern = r"symbol (\w+:\w+)"
-    closed_price_pattern = r"price (\d+\.\d+)"
+    closed_price_pattern = r"price (\d+(?:\.\d+)?)"
     shares_pattern = r"for (\d+) shares"
     position_type_pattern = r"Close (long|short) position"
+
+    commission = 0.0
 
     # Apply the regex patterns to each element of the 'Action' column
     details_list = []
     for _, row in acc_df.iterrows():
-        if "Commission" in row['Action']:  # TODO add commission to P&L, and make it a separate column
+        if "Commission" in row['Action']:
+            commission += float(row['P&L'])
             continue
         position = re.search(position_type_pattern, row['Action']).group(1)  # long or short position
         symbol = re.search(symbol_pattern, row['Action']).group(1)  # symbol of the stock
@@ -77,7 +80,6 @@ def analyze_data(account_history_path):
             'Quantity': quantity,
             'Opened Price': opened_price,
             'Closed Price': closed_price,
-            # 'Commission': 'TODO'
             'Balance Before': round(row['Balance Before'], 2),
             'Balance After': round(row['Balance After'], 2),
             'P&L': round(row['Balance After'] - row['Balance Before'], 2),
@@ -87,7 +89,13 @@ def analyze_data(account_history_path):
     # Create a new DataFrame with only the columns we need
     details_df = pd.DataFrame(details_list)
 
-    # total_return_amount = [details_df['P&L'].sum()]
+    total_commission = round(commission, 2)
+    number_of_trades = [details_df['P&L'].count()]
+    number_of_long_trades = [details_df[details_df['Position'] == 'long']['P&L'].count()]
+    number_of_short_trades = [details_df[details_df['Position'] == 'short']['P&L'].count()]
+    net_profit_amount = [round(details_df['P&L'].sum() - total_commission, 2)]
+    total_profit_amount = [round(details_df[details_df['P&L'] > 0]['P&L'].sum(), 2)]
+    total_loss_amount = [round(details_df[details_df['P&L'] < 0]['P&L'].sum(), 2)]
     total_return_percentage = [round(details_df['%'].sum(), 2)]
     average_return_percentage = [round(details_df['%'].mean(), 2)]
     batting_average = [round(details_df[details_df['P&L'] > 0]['P&L'].count() / details_df['P&L'].count() * 100, 2)]
@@ -97,12 +105,19 @@ def analyze_data(account_history_path):
 
     # Create a new DataFrame with only the columns we need for total values
     total_df = pd.DataFrame({
+        'Number of Trades': [number_of_trades[0]],
+        'Number of Long Trades': [number_of_long_trades[0]],
+        'Number of Short Trades': [number_of_short_trades[0]],
         'Total Return': [f"{total_return_percentage[0]}%"],
         'Average Return': [f"{average_return_percentage[0]}%"],
         'Batting Average': [f"{batting_average[0]}%"],
         'Average Win': [f"{average_win_percentage[0]}%"],
         'Average Loss': [f"{average_loss_percentage[0]}%"],
         'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]}%"],
+        'Commission': [f"${total_commission}"],
+        'Net Profit': [f"${net_profit_amount[0]}"],  # Commission appiled only to this
+        'Gross Profit': [f"${total_profit_amount[0]}"],
+        'Gross Loss': [f"${total_loss_amount[0]}"],
     })
 
     # Create the pie chart TODO make this a bar graphs of monthly data
@@ -199,7 +214,7 @@ export_button = tk.Button(content_frame, text="Export HTML", command=export)
 export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
 export_button.pack()
 
-version_label = tk.Label(root, text="Version Beta.1.0.1", font=('Arial', 10))
+version_label = tk.Label(root, text="Version Beta.1.1.1", font=('Arial', 10))
 version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
 root.mainloop()
