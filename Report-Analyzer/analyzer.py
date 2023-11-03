@@ -1,6 +1,9 @@
 import os
 import sys
 
+# TODO Add monthly, and yearly summarys
+# TODO Check if TK operations work on Mac and Linux, if not using Qt6
+
 import_error = False
 
 try:
@@ -39,9 +42,6 @@ if import_error:
     input("\nPress ENTER to exit...")
     sys.exit()
 
-
-# TODO Add monthly, and yearly summarys
-# TODO Check if TK operations work on Mac and Linux, if not using Qt6
 
 def analyze_data(account_history_path):
     """Analyze the data from the CSV file and return the dataframe with the results"""
@@ -182,7 +182,7 @@ def export():
         export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
             
         if export_location:
-            export_html(data_frames[0], data_frames[1], export_location)
+            export_html(data_frames[0], data_frames[1], export_location)  # TODO Error handling
             if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
                 webbrowser.open(export_location)
         else:
