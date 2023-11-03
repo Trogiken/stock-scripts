@@ -75,6 +75,7 @@ def analyze_data(account_history_path):
             'Quantity': quantity,
             'Opened Price': opened_price,
             'Closed Price': closed_price,
+            # 'Commission': 'TODO'
             'Balance Before': round(row['Balance Before'], 2),
             'Balance After': round(row['Balance After'], 2),
             'P&L': round(row['Balance After'] - row['Balance Before'], 2),
