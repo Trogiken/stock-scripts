@@ -1,3 +1,5 @@
+"""This program uses the 'Account History' csv file from trading view to create a report"""
+
 import os
 import sys
 
