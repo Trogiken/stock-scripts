@@ -34,11 +34,6 @@ try:
 except ImportError:
     import_error = True
     print("Please install re package: pip install re")
-try:
-    import shutil
-except ImportError:
-    import_error = True
-    print("Please install shutil package: pip install shutil")
 
 if import_error:
     input("\nPress ENTER to exit...")
@@ -215,31 +210,51 @@ radio_var = tk.IntVar()
 radio_var.set(4)
 account_history_path = ""
 
-def get_account_path(): # TODO add correct csv file check
+def is_valid_csv(file_path):
+    """Check if the selected CSV file is valid"""
+    try:
+        csv_file = pd.read_csv(file_path, sep=',')
+        for column in csv_file.columns:
+            if column not in ['Time', 'Balance Before', 'Balance After', 'P&L', 'Action']:
+                return False
+        return True
+    except:
+        return False
+
+def get_account_path():
     """Open csv file and store path in global variable"""
     global account_history_path
     account_history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-    if account_history_path:
+    if not account_history_path:
+        return
+    
+    if is_valid_csv(account_history_path):
         acc_button.configure(bg='green', fg='white')
         export_button.configure(bg='blue', fg='white')
     else:
+        tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
         acc_button.configure(bg='grey', fg='black')
         export_button.configure(bg='red', fg='white')
 
 def export():
     """Check if both csv files are selected, analyze data, and export html file"""
-    if account_history_path == "":
-        tk.messagebox.showerror("Error", f"Please select the account history CSV file.")
-    else:
+    if not account_history_path:
+        return
+    
+    try:
         data_frames = analyze_data(account_history_path, radio_var.get())
+    except:
+        tk.messagebox.showerror("Error", f"An error occurred while analyzing the data.")
+        return
+    
+    try:
         export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
-            
-        if export_location:
-            export_html(data_frames, export_location)  # TODO Error handling
+        if os.path.exists(export_location):
+            export_html(data_frames, export_location)
             if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
                 webbrowser.open(export_location)
-        else:
-            tk.messagebox.showerror("Error", "Please select a valid export location.")
+    except:
+        tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
 
 
 # Create and label radio buttons
@@ -247,14 +262,13 @@ report_title_label = tk.Label(radio_button_frame, text="Time Frame of Report")
 report_title_label.pack(side=tk.TOP, anchor=tk.N)
 report_title_label.config(font=('Arial', 12))
 
-
 tk.Radiobutton(radio_button_frame, text="Daily", variable=radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
 tk.Radiobutton(radio_button_frame, text="Monthly", variable=radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
 tk.Radiobutton(radio_button_frame, text="Quarterly", variable=radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
 tk.Radiobutton(radio_button_frame, text="Yearly", variable=radio_var, value=4, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
 
 # Account History button
-acc_button = tk.Button(file_button_frame, text="Select 'Account History' CSV", command=get_account_path)
+acc_button = tk.Button(file_button_frame, text="Select Account History CSV", command=get_account_path)
 acc_button.configure(bg='grey', fg='black', font=('Arial', 12), width=30)
 acc_button.pack(pady=2)
 
@@ -280,7 +294,7 @@ export_button.bind("<Enter>", on_enter)
 export_button.bind("<Leave>", on_leave)
 
 # Create version label
-version_label = tk.Label(version_frame, text="Version Beta.2.1.1", font=('Arial', 10))  # TODO Change version nuber
+version_label = tk.Label(version_frame, text="Version Beta.2.1.2", font=('Arial', 10))
 version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
 root.mainloop()
