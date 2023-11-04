@@ -3,7 +3,6 @@
 import os
 import sys
 
-# TODO Format HTML better
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
 
 import_error = False
@@ -280,7 +279,7 @@ export_button.bind("<Enter>", on_enter)
 export_button.bind("<Leave>", on_leave)
 
 # Create version label
-version_label = tk.Label(version_frame, text="Version Beta.1.1.1", font=('Arial', 10))  # TODO Change version nuber
+version_label = tk.Label(version_frame, text="Version Beta.2.1.1", font=('Arial', 10))  # TODO Change version nuber
 version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
 root.mainloop()
