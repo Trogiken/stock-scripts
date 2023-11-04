@@ -47,45 +47,43 @@ if import_error:
 
 def analyze_data(account_history_path, time_frame):
     """Analyze the data from the CSV file and return the dataframe with the results"""
-    # Read the CSV file
     account_df = pd.read_csv(account_history_path, sep=',')
 
     # remove whitespace from balance columns while keeping it a float
     account_df['Balance Before'] = account_df['Balance Before'].str.replace('\xa0', '').astype(float)
     account_df['Balance After'] = account_df['Balance After'].str.replace('\xa0', '').astype(float)
 
-    # regex patterns to extract the data we need
+    # regex patterns to extract the data
     symbol_pattern = r"symbol (\w+:\w+)"
     closed_price_pattern = r"price (\d+(?:\.\d+)?)"
     shares_pattern = r"for (\d+) shares"
     position_type_pattern = r"Close (long|short) position"
 
-    commission = 0.0
     dataframes = {}
-
     df_dict = {}
+
     for _, row in account_df.iterrows():
         # separate by time frame
         time = ""
         if time_frame == 1:  # daily
             time = row['Time'].split(' ')[0]
             if time not in df_dict:
-                df_dict[time] = {"details": []}
+                df_dict[time] = {"details": [], "commission": 0.0}
         elif time_frame == 2:  # monthly
             time = row['Time'].split(' ')[0].split('-')[0] + '-' + row['Time'].split(' ')[0].split('-')[1]
             if time not in df_dict:
-                df_dict[time] = {"details": []}
-        elif time_frame == 3:  # quarterly
+                df_dict[time] = {"details": [], "commission": 0.0}
+        elif time_frame == 3:  # quarterly # DEBUG
             time = row['Time'].split(' ')[0].split('-')[0] + '-' + str(int(row['Time'].split(' ')[0].split('-')[1]) // 3)
             if time not in df_dict:
-                df_dict[time] = {"details": []}
+                df_dict[time] = {"details": [], "commission": 0.0}
         elif time_frame == 4:  # yearly
             time = row['Time'].split(' ')[0].split('-')[0]
             if time not in df_dict:
-                df_dict[time] = {"details": []}
+                df_dict[time] = {"details": [], "commission": 0.0}
 
         if "Commission" in row['Action']:
-            commission += float(row['P&L'])
+            df_dict[time]["commission"] += float(row['P&L'])
             continue
 
         df_dict[time]["details"].append({
@@ -102,14 +100,13 @@ def analyze_data(account_history_path, time_frame):
         })
 
     for time_frame in df_dict:
-        # Create a new DataFrame with only the columns we need
         details_df = pd.DataFrame(df_dict[time_frame]["details"])
 
-        total_commission = round(commission, 2)
+        total_commission = round(df_dict[time_frame]["commission"], 2)
         number_of_trades = [details_df['P&L'].count()]
         number_of_long_trades = [details_df[details_df['Position'] == 'long']['P&L'].count()]
         number_of_short_trades = [details_df[details_df['Position'] == 'short']['P&L'].count()]
-        net_profit_amount = [round(details_df['P&L'].sum() - total_commission, 2)]
+        net_profit_amount = [round(details_df['P&L'].sum(), 2)]
         total_profit_amount = [round(details_df[details_df['P&L'] > 0]['P&L'].sum(), 2)]
         total_loss_amount = [round(details_df[details_df['P&L'] < 0]['P&L'].sum(), 2)]
         total_return_percentage = [round(details_df['%'].sum(), 2)]
@@ -119,7 +116,6 @@ def analyze_data(account_history_path, time_frame):
         average_loss_percentage = [round(details_df[details_df['P&L'] < 0]['%'].mean(), 2)]
         win_loss_ratio_percentage = [round(details_df[details_df['P&L'] > 0]['%'].mean() / abs(details_df[details_df['P&L'] < 0]['%'].mean()), 2)]
 
-        # Create a new DataFrame with only the columns we need for total values
         total_df = pd.DataFrame({
             'Number of Trades': [number_of_trades[0]],
             'Number of Long Trades': [number_of_long_trades[0]],
@@ -130,8 +126,8 @@ def analyze_data(account_history_path, time_frame):
             'Average Win': [f"{average_win_percentage[0]}%"],
             'Average Loss': [f"{average_loss_percentage[0]}%"],
             'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]}%"],
-            'Commission': [f"${total_commission}"],
-            'Net Profit': [f"${net_profit_amount[0]}"],  # Commission appiled only to this
+            'Commission': [f"${total_commission}"],  # FIXME Commission is static accross all days
+            'Net Profit': [f"${net_profit_amount[0]}"],
             'Gross Profit': [f"${total_profit_amount[0]}"],
             'Gross Loss': [f"${total_loss_amount[0]}"],
         })
@@ -150,6 +146,9 @@ def export_html(dataframes: dict, export_location):
         f.write('<html>\n')
         f.write('<head>\n')
         f.write('<style>\n')
+        f.write('h1 {\n')
+        f.write('  margin-bottom: 0px;\n')
+        f.write('}\n')
         f.write('table {\n')
         f.write('  border-collapse: collapse;\n')
         f.write('  width: 100%;\n')
@@ -172,8 +171,8 @@ def export_html(dataframes: dict, export_location):
             details_df = dataframes[time_frame]["details"]
             total_df = dataframes[time_frame]["total"]
             f.write(f'<h1>{time_frame}</h1>\n')
+            f.write('<hr>\n')
             f.write(total_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
-            f.write('<h2>Trade Details</h2>\n')
             f.write(details_df.to_html(index=False, justify='center', border=1, bold_rows=True, na_rep=''))
             
         f.write('</body>\n')
