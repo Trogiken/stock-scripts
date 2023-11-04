@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
 # TODO Create graphs
@@ -13,6 +14,11 @@ try:
 except ImportError:
     import_error = True
     print("Please install webbrowser package: pip install webbrowser")
+try:
+    from PIL import Image, ImageTk
+except ImportError:
+    import_error = True
+    print("Please install PIL package: pip install pillow")
 try:
     import pandas as pd
 except ImportError:
@@ -121,7 +127,7 @@ def analyze_data(account_history_path, time_frame):
             'Average Win': [f"{average_win_percentage[0]}%"],
             'Average Loss': [f"{average_loss_percentage[0]}%"],
             'Win Loss Ratio': [f"{win_loss_ratio_percentage[0]}%"],
-            'Commission': [f"${total_commission}"],  # FIXME Commission is static accross all days
+            'Commission': [f"${total_commission}"],
             'Net Profit': [f"${net_profit_amount[0]}"],
             'Gross Profit': [f"${total_profit_amount[0]}"],
             'Gross Loss': [f"${total_loss_amount[0]}"],
@@ -221,6 +227,29 @@ def is_valid_csv(file_path):
     except:
         return False
 
+def create_overlay(root, message):
+    # Create a new image with the same size as the root window
+    width = root.winfo_width()
+    height = root.winfo_height()
+    image = Image.new('RGBA', (width, height), (128, 128, 128, 128))  # Semi-transparent grey
+
+    # Create a PhotoImage from the image
+    photo = ImageTk.PhotoImage(image)
+
+    # Create the overlay and set the image as its background
+    overlay = tk.Label(root, image=photo)
+    overlay.image = photo  # Keep a reference to the image
+    overlay.place(x=0, y=0, relwidth=1, relheight=1)
+
+    # Create the message label
+    label = tk.Label(overlay, text=message, font=('Arial', 14), bg='grey')
+    label.place(relx=0.5, rely=0.5, anchor='c')
+
+    root.update()
+    time.sleep(1)
+
+    return overlay
+
 def get_account_path():
     """Open csv file and store path in global variable"""
     global account_history_path
@@ -233,6 +262,7 @@ def get_account_path():
         export_button.configure(bg='blue', fg='white')
     else:
         tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
+        account_history_path = ""
         acc_button.configure(bg='grey', fg='black')
         export_button.configure(bg='red', fg='white')
 
@@ -241,21 +271,27 @@ def export():
     if not account_history_path:
         return
     
+    export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
+    if not export_location:
+        return
+    
+    overlay = create_overlay(content_frame, "Exporting...")
     try:
         data_frames = analyze_data(account_history_path, radio_var.get())
     except:
         tk.messagebox.showerror("Error", f"An error occurred while analyzing the data.")
+        overlay.destroy()
         return
     
     try:
-        export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
-        if os.path.exists(export_location):
-            export_html(data_frames, export_location)
-            if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
-                webbrowser.open(export_location)
+        export_html(data_frames, export_location)
+        overlay.destroy()
+        if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
+            webbrowser.open(export_location)
     except:
         tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
 
+    overlay.destroy()
 
 # Create and label radio buttons
 report_title_label = tk.Label(radio_button_frame, text="Time Frame of Report")
