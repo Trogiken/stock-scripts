@@ -281,7 +281,7 @@ export_button.bind("<Enter>", on_enter)
 export_button.bind("<Leave>", on_leave)
 
 # Create version label
-version_label = tk.Label(version_frame, text="Version Beta.1.1.1", font=('Arial', 10))
+version_label = tk.Label(version_frame, text="Version Beta.1.1.1", font=('Arial', 10))  # TODO Change version nuber
 version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
 root.mainloop()
