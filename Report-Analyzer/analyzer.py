@@ -4,6 +4,7 @@ import os
 import sys
 
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
+# TODO Create graphs
 
 import_error = False
 
@@ -17,11 +18,11 @@ try:
 except ImportError:
     import_error = True
     print("Please install pandas package: pip install pandas")
-try:
-    import matplotlib.pyplot as plt
-except ImportError:
-    import_error = True
-    print("Please install matplotlib package: pip install matplotlib")
+# try:
+#     import matplotlib.pyplot as plt
+# except ImportError:
+#     import_error = True
+#     print("Please install matplotlib package: pip install matplotlib")
 try:
     import tkinter as tk
     from tkinter import filedialog
