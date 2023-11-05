@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Define the list of Python packages you want to install
-set "packages=pandas pillow tkinter"
+set "packages=pandas pillow tk"
 
 REM Loop through the list of packages and install each one
 for %%p in (%packages%) do (
