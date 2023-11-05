@@ -282,7 +282,7 @@ if __name__ == '__main__':
         except:
             tk.messagebox.showerror("Error", f"An error occurred while analyzing the data.")
             overlay.destroy()
-            raise  # TODO Remove
+            return
         
         try:
             export_html(data_frames, export_location)
@@ -291,7 +291,8 @@ if __name__ == '__main__':
                 webbrowser.open(export_location)
         except:
             tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
-            raise  # TODO Remove
+            overlay.destroy()
+            return
 
         overlay.destroy()
 
