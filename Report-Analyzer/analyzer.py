@@ -93,7 +93,7 @@ def analyze_data(account_history_path, time_frame):
             'Position': re.search(position_type_pattern, row['Action']).group(1),  # long or short position,
             'Symbol': re.search(symbol_pattern, row['Action']).group(1),  # symbol of the stock,
             'Quantity': re.search(shares_pattern, row['Action']).group(1),  # quantity of shares,
-            'Opened Price': round(float(re.search(closed_price_pattern, row['Action']).group(1)) + ((float(row['Balance After']) - float(row['Balance Before'])) / int(re.search(shares_pattern, row['Action']).group(1))), 2),  # price at which the position was opened,
+# Removed because its never right           'Opened Price': round(float(row['Balance Before']) - (float(re.search(closed_price_pattern, row['Action']).group(1)) * int(re.search(shares_pattern, row['Action']).group(1))) / int(re.search(shares_pattern, row['Action']).group(1)), 2),
             'Closed Price': round(float(re.search(closed_price_pattern, row['Action']).group(1)), 2),  # price at which the position was closed
             'Balance Before': round(float(row['Balance Before']), 2),
             'Balance After': round(float(row['Balance After']), 2),
