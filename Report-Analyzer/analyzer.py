@@ -202,12 +202,10 @@ if __name__ == '__main__':
     # Create a horizontal frame for radio buttons
     radio_button_frame = tk.Frame(container_frame)
     radio_button_frame.pack(fill=tk.BOTH, expand=True)
-    # radio_button_frame.config(padx=5, pady=5)
 
     # Create a vertical frame for the file buttons
     file_button_frame = tk.Frame(container_frame)
     file_button_frame.pack(fill=tk.BOTH, expand=True)
-    # file_button_frame.config(padx=5, pady=5)
 
     # Create a frame for the version label
     version_frame = tk.Frame(container_frame)
