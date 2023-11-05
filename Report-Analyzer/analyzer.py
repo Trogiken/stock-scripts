@@ -296,10 +296,12 @@ if __name__ == '__main__':
         overlay.destroy()
 
     # Create and label radio buttons
+    # TODO Title is too small on Mac and Linux
     report_title_label = tk.Label(radio_button_frame, text="Time Frame of Report")
     report_title_label.pack(side=tk.TOP, anchor=tk.N)
     report_title_label.config(font=('Arial', 12))
 
+    # TODO These buttons are not cented or any OS
     tk.Radiobutton(radio_button_frame, text="Daily", variable=radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
     tk.Radiobutton(radio_button_frame, text="Monthly", variable=radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
     tk.Radiobutton(radio_button_frame, text="Quarterly", variable=radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
@@ -312,10 +314,12 @@ if __name__ == '__main__':
 
     # Export HTML button
     export_button = tk.Button(file_button_frame, text="Export HTML", command=export)
+    # TODO This color scheme doesn't show up on Mac and Linux
     export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
     export_button.pack(pady=2)
 
     # Bind enter and leave events to change button borders
+    # TODO Highlights look bad on Mac and Linux
     def on_enter(event):
         event.widget.original_highlightbackground = event.widget.cget("highlightbackground")
         event.widget.original_highlightthickness = event.widget.cget("highlightthickness")
@@ -332,7 +336,7 @@ if __name__ == '__main__':
     export_button.bind("<Leave>", on_leave)
 
     # Create version label
-    version_label = tk.Label(version_frame, text="Version Beta.2.1.3", font=('Arial', 10))
+    version_label = tk.Label(version_frame, text="Version Beta.2.1.3", font=('Arial', 10)) # TODO Change version number
     version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
     root.mainloop()
