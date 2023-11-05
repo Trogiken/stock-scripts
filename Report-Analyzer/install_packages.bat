@@ -10,10 +10,13 @@ for %%p in (%packages%) do (
     python -m pip install %%p
     if !errorlevel! neq 0 (
         echo Error installing %%p. Please check and try again.
+        pause >nul
         exit /b 1
     )
 )
 
 echo All packages have been installed successfully.
+
+pause >nul
 
 endlocal
