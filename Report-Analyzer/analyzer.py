@@ -334,7 +334,7 @@ if __name__ == '__main__':
     export_button.bind("<Leave>", on_leave)
 
     # Create version label
-    version_label = tk.Label(version_frame, text="Version Beta.2.1.2", font=('Arial', 10))
+    version_label = tk.Label(version_frame, text="Version Beta.2.1.3", font=('Arial', 10))
     version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
     root.mainloop()
