@@ -5,6 +5,7 @@ import sys
 import time
 
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
+# TODO Add export as PDF option
 # TODO Create graphs
 
 import_error = False
