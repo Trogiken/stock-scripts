@@ -38,7 +38,7 @@ class GUI:
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
-        self.radio_button_frame.pack(fill=tk.BOTH, expand=True)
+        self.radio_button_frame.pack(expand=True)
 
         # Create a vertical frame for the file buttons
         self.file_button_frame = tk.Frame(self.container_frame)
@@ -52,6 +52,40 @@ class GUI:
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
         self.account_history_path = ""
+        
+        # Create and label radio buttons
+        report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
+        report_title_label.pack(side=tk.TOP, anchor=tk.N)
+        report_title_label.config(font=('Arial', 12))
+
+        # TODO These buttons are not cented or any OS
+        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+
+        # Account History button
+        self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
+        self.acc_button.configure(bg='grey', fg='black', font=('Arial', 12), width=30)
+        self.acc_button.pack(pady=2)
+
+        # Export HTML button
+        self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
+        self.export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
+        self.export_button.pack(pady=2)
+
+        # Bind enter and leave events to change button borders
+        self.acc_button.bind("<Enter>", self.on_enter)
+        self.acc_button.bind("<Leave>", self.on_leave)
+
+        self.export_button.bind("<Enter>", self.on_enter)
+        self.export_button.bind("<Leave>", self.on_leave)
+
+        # Create version label
+        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=('Arial', 10))
+        version_label.pack(side=tk.RIGHT, anchor=tk.S)
+
+        self.root.mainloop()
     
     def is_valid_csv(self, file_path):
         """Check if the selected CSV file is valid"""
@@ -138,38 +172,3 @@ class GUI:
 
     def on_leave(self, event):
         event.widget.config(highlightbackground=event.widget.original_highlightbackground, highlightthickness=event.widget.original_highlightthickness, borderwidth=event.widget.original_borderwidth)
-    
-    def run(self):
-        # Create and label radio buttons
-        report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
-        report_title_label.pack(side=tk.TOP, anchor=tk.N)
-        report_title_label.config(font=('Arial', 12))
-
-        # TODO These buttons are not cented or any OS
-        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-
-        # Account History button
-        self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
-        self.acc_button.configure(bg='grey', fg='black', font=('Arial', 12), width=30)
-        self.acc_button.pack(pady=2)
-
-        # Export HTML button
-        self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
-        self.export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
-        self.export_button.pack(pady=2)
-
-        # Bind enter and leave events to change button borders
-        self.acc_button.bind("<Enter>", self.on_enter)
-        self.acc_button.bind("<Leave>", self.on_leave)
-
-        self.export_button.bind("<Enter>", self.on_enter)
-        self.export_button.bind("<Leave>", self.on_leave)
-
-        # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=('Arial', 10))
-        version_label.pack(side=tk.RIGHT, anchor=tk.S)
-
-        self.root.mainloop()
