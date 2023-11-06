@@ -169,7 +169,7 @@ class GUI:
         self.export_button.bind("<Leave>", self.on_leave)
 
         # Create version label
-        version_label = tk.Label(self.version_frame, text=self.version, font=('Arial', 10))
+        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=('Arial', 10))
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()

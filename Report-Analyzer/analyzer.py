@@ -4,7 +4,7 @@ import sys
 from source.windows_gui import GUI as windows_gui
 from source.unix_gui import GUI as unix_gui
 
-version = "2.1.3"  #  TODO Change to 2.2.3 when ready to release
+version = "beta.2.1.3"  #  TODO Change to beta.2.2.3 when ready to release
 
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
 # TODO Add export as PDF option
