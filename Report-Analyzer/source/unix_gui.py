@@ -33,7 +33,6 @@ class GUI:
         # Create a container frame
         self.container_frame = tk.Frame(self.content_frame)
         self.container_frame.pack(fill=tk.BOTH, expand=True)
-        self.container_frame.config(padx=20, pady=20)
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -46,6 +45,7 @@ class GUI:
         # Create a frame for the version label
         self.version_frame = tk.Frame(self.container_frame)
         self.version_frame.pack(fill=tk.BOTH, expand=True)
+        self.version_frame.config(padx=10, pady=10)
         
         # Initialize values
         self.radio_var = tk.IntVar()
