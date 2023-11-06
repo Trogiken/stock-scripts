@@ -7,6 +7,7 @@ from source.unix_gui import GUI as unix_gui
 version = "beta.2.1.3"  #  TODO Change to beta.2.2.3 when ready to release
 
 # TODO Check if TK operations work on Mac and Linux, if not using Qt6
+# TODO Work on commission calculations and usage
 # TODO Add export as PDF option
 # TODO Add option to export as Excel file
 # TODO Create graphs
