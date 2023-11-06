@@ -10,7 +10,7 @@ version = "beta.2.1.3"  #  TODO Change to beta.2.2.3 when ready to release
 # TODO Add export as PDF option
 # TODO Add option to export as Excel file
 # TODO Create graphs
-# TODO Find a way to impliment cross-platform compatibility that doesn't involve so much repeated code.
+# TODO Find a way to impliment cross-platform compatibility that doesn't involve so much repeated code. Maybe have one gui class that uses themes
 
 
 if __name__ == '__main__':
@@ -19,8 +19,7 @@ if __name__ == '__main__':
         gui = windows_gui(version)
         gui.run()
     elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
-        gui = unix_gui(version)
-        gui.run()
+        unix_gui(version)
     else:
         print("This program is not compatible with your operating system.")
         input("\nPress ENTER to exit...")

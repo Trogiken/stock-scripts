@@ -4,7 +4,7 @@ import time
 try:
     import tkinter as tk
     from tkinter import filedialog
-    import webbrowser
+    import subprocess
     from PIL import Image, ImageTk
     import pandas as pd
     from source.csv_functions import analyze_data, export_html
@@ -52,6 +52,40 @@ class GUI:
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
         self.account_history_path = ""
+
+        # Create and label radio buttons
+        report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
+        report_title_label.pack(side=tk.TOP, anchor=tk.N)
+        report_title_label.config(font=('Arial', 14))
+
+        # TODO These buttons are not cented or any OS
+        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+
+        # Account History button
+        self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
+        self.acc_button.configure(font=('Arial', 12), width=30)
+        self.acc_button.pack(pady=2)
+
+        # Export HTML button
+        self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
+        self.export_button.configure(font=('Arial', 12), width=30, state=tk.DISABLED)
+        self.export_button.pack(pady=2)
+
+        # Bind enter and leave events to change button borders
+        self.acc_button.bind("<Enter>", self.on_enter)
+        self.acc_button.bind("<Leave>", self.on_leave)
+
+        self.export_button.bind("<Enter>", self.on_enter)
+        self.export_button.bind("<Leave>", self.on_leave)
+
+        # Create version label
+        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=('Arial', 10))
+        version_label.pack(side=tk.RIGHT, anchor=tk.S)
+
+        self.root.mainloop()
     
     def is_valid_csv(self, file_path):
         """Check if the selected CSV file is valid"""
@@ -92,13 +126,11 @@ class GUI:
             return
         
         if self.is_valid_csv(self.account_history_path):
-            self.acc_button.configure(bg='green', fg='white')
-            self.export_button.configure(bg='blue', fg='white')
+            self.export_button.configure(state=tk.NORMAL)
         else:
             tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
             self.account_history_path = ""
-            self.acc_button.configure(bg='grey', fg='black')
-            self.export_button.configure(bg='red', fg='white')
+            self.export_button.configure(state=tk.DISABLED)
 
     def export(self):
         """Check if both csv files are selected, analyze data, and export html file"""
@@ -121,7 +153,12 @@ class GUI:
             export_html(data_frames, export_location)
             overlay.destroy()
             if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
-                webbrowser.open(export_location)  # TODO This does not work on Mac and Linux
+                if sys.platform == 'darwin':  # Mac
+                    subprocess.call(('open', export_location))
+                elif sys.platform == 'linux':  # Linux
+                    subprocess.call(('xdg-open', export_location))
+                else:  # Windows
+                    raise NotImplementedError
         except:
             tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
             overlay.destroy()
@@ -130,48 +167,8 @@ class GUI:
         overlay.destroy()
 
     def on_enter(self, event):
-        # TODO Highlights look bad on Mac and Linux
-        event.widget.original_highlightbackground = event.widget.cget("highlightbackground")
-        event.widget.original_highlightthickness = event.widget.cget("highlightthickness")
         event.widget.original_borderwidth = event.widget.cget("borderwidth")
-        event.widget.config(highlightbackground='black', highlightthickness=2, borderwidth=3)
+        event.widget.config(borderwidth=3)
 
     def on_leave(self, event):
-        event.widget.config(highlightbackground=event.widget.original_highlightbackground, highlightthickness=event.widget.original_highlightthickness, borderwidth=event.widget.original_borderwidth)
-    
-    def run(self):
-        # Create and label radio buttons
-        # TODO Title is too small on Mac and Linux
-        report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
-        report_title_label.pack(side=tk.TOP, anchor=tk.N)
-        report_title_label.config(font=('Arial', 12))
-
-        # TODO These buttons are not cented or any OS
-        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-
-        # Account History button
-        self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
-        self.acc_button.configure(bg='grey', fg='black', font=('Arial', 12), width=30)
-        self.acc_button.pack(pady=2)
-
-        # Export HTML button
-        # TODO This color scheme doesn't show up on Mac and Linux
-        self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
-        self.export_button.configure(bg='red', fg='white', font=('Arial', 12), width=30)
-        self.export_button.pack(pady=2)
-
-        # Bind enter and leave events to change button borders
-        self.acc_button.bind("<Enter>", self.on_enter)
-        self.acc_button.bind("<Leave>", self.on_leave)
-
-        self.export_button.bind("<Enter>", self.on_enter)
-        self.export_button.bind("<Leave>", self.on_leave)
-
-        # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=('Arial', 10))
-        version_label.pack(side=tk.RIGHT, anchor=tk.S)
-
-        self.root.mainloop()
+        event.widget.config(borderwidth=event.widget.original_borderwidth)
