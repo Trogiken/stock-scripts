@@ -28,7 +28,6 @@ class GUI:
         # Create a frame with padding
         self.content_frame = tk.Frame(self.root)
         self.content_frame.pack(fill=tk.BOTH, expand=True)
-
         self.content_frame.config(padx=15, pady=15, background='teal', highlightbackground='black', highlightthickness=2)
 
         # Create a container frame
@@ -38,7 +37,7 @@ class GUI:
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
-        self.radio_button_frame.pack(fill=tk.BOTH, expand=True)
+        self.radio_button_frame.pack(expand=True)
 
         # Create a vertical frame for the file buttons
         self.file_button_frame = tk.Frame(self.container_frame)
@@ -58,7 +57,6 @@ class GUI:
         report_title_label.pack(side=tk.TOP, anchor=tk.N)
         report_title_label.config(font=('Arial', 14))
 
-        # TODO These buttons are not cented or any OS
         tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
         tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
         tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
