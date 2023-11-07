@@ -47,11 +47,11 @@ class GUI:
                 "acc_btn_active_bg": "green",
                 "acc_btn_active_fg": "white",
                 "acc_btn_disabled_bg": "grey",
-                "acc_btn_disabled_fg": "black",
+                "acc_btn_disabled_fg": "white",
                 "expo_btn_active_bg": "blue",
                 "expo_btn_active_fg": "white",
                 "expo_btn_disabled_bg": "red",
-                "expo_btn_disabled_fg": "white",
+                "expo_btn_disabled_fg": "grey",
                 "title_font": ('Arial', 14),
                 "normal_font": ('Arial', 12),
                 "small_font": ('Arial', 10)
@@ -193,7 +193,7 @@ class GUI:
         else:
             tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
             self.account_history_path = ""
-            self.export_button.configure(bg=self.theme['expo_btn_active_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'])
+            self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'])
             self.export_button.configure(state=tk.DISABLED)
 
     def export(self) -> None:
