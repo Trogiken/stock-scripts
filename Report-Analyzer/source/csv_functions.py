@@ -25,7 +25,7 @@ if import_error:
     sys.exit()
 
 
-def analyze_data(account_history_path, time_frame):
+def analyze_data(account_history_path: str, time_frame: int) -> dict:
     """Analyze the data from the CSV file and return the dataframe with the results"""
     account_df = pd.read_csv(account_history_path, sep=',')
 
@@ -117,7 +117,7 @@ def analyze_data(account_history_path, time_frame):
     return dataframes
 
 
-def export_html(dataframes: dict, export_location):
+def export_html(dataframes: dict, export_location: str) -> None:
     """Export the DataFrame to an HTML file"""
     if os.path.exists(export_location):
         os.remove(export_location)

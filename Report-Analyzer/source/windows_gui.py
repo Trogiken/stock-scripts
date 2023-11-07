@@ -28,7 +28,6 @@ class GUI:
         # Create a frame with padding
         self.content_frame = tk.Frame(self.root)
         self.content_frame.pack(fill=tk.BOTH, expand=True)
-
         self.content_frame.config(padx=15, pady=15, background='teal', highlightbackground='black', highlightthickness=2)
 
         # Create a container frame

@@ -3,10 +3,11 @@ import time
 
 try:
     import tkinter as tk
-    from tkinter import filedialog
-    import subprocess
-    from PIL import Image, ImageTk
     import pandas as pd
+    import subprocess
+    import webbrowser
+    from PIL import Image, ImageTk
+    from tkinter import filedialog
     from source.csv_functions import analyze_data, export_html
 except ImportError:
     print("Please install the required packages: pip install -r requirements.txt")
@@ -15,8 +16,82 @@ except ImportError:
 
 
 class GUI:
-    def __init__(self, version):
+    """
+    This class creates the GUI for the program
+
+    Attributes:
+        os (str): The operating system the program is running on
+        version (str): The version of the program
+        theme (dict): The theme of the GUI
+        root (tk.Tk): The Tkinter root
+        content_frame (tk.Frame): The frame that contains all the other frames
+        container_frame (tk.Frame): The frame that contains the radio button frame, file button frame, and version frame
+        radio_button_frame (tk.Frame): The frame that contains the radio buttons
+        file_button_frame (tk.Frame): The frame that contains the file buttons
+        version_frame (tk.Frame): The frame that contains the version label
+        radio_var (tk.IntVar): The variable that stores the value of the radio buttons
+        account_history_path (str): The path to the account history csv file
+
+    Methods:
+        is_valid_csv(file_path: str) -> bool: Check if the selected CSV file is valid
+        create_overlay(message: str) -> tk.Label: Create a semi-transparent overlay with a message in the center
+        get_account_path() -> None: Open csv file and store path
+        export() -> None: Check if both csv files are selected, analyze data, and export html file
+        on_enter(event: tk.Event) -> None: Change button border when mouse hovers over it
+        on_leave(event: tk.Event) -> None: Change button border back to normal when mouse leaves
+    """
+    def __init__(self, os, version):
+        if os == 'windows':
+            theme = {
+                "os": "windows",
+                "bg": "white",
+                "fg": "black",
+                "highlightbackground": "black",
+                "highlightthickness": 2,
+                "button_bg": "white",
+                "button_fg": "black",
+                "button_highlightbackground": "black",
+                "button_highlightthickness": 2,
+                "button_activebackground": "white",
+                "button_activeforeground": "black",
+                "button_activehighlightbackground": "black",
+                "button_activehighlightthickness": 2,
+                "button_disabledforeground": "grey",
+                "button_disabledbackground": "white",
+                "button_disabledhighlightbackground": "black",
+                "button_disabledhighlightthickness": 2,
+                "button_font": ('Arial', 12),
+                "label_font": ('Arial', 14),
+                "version_font": ('Arial', 10)
+            }
+        elif os == 'unix':
+            theme = {
+                "os": "unix",
+                "bg": "teal",
+                "fg": "white",
+                "highlightbackground": "black",
+                "highlightthickness": 2,
+                "button_bg": "teal",
+                "button_fg": "white",
+                "button_highlightbackground": "black",
+                "button_highlightthickness": 2,
+                "button_activebackground": "teal",
+                "button_activeforeground": "white",
+                "button_activehighlightbackground": "black",
+                "button_activehighlightthickness": 2,
+                "button_disabledforeground": "grey",
+                "button_disabledbackground": "teal",
+                "button_disabledhighlightbackground": "black",
+                "button_disabledhighlightthickness": 2,
+                "button_font": ('Arial', 12),
+                "label_font": ('Arial', 14),
+                "version_font": ('Arial', 10)
+            }
+        else:
+            raise ValueError("Invalid operating system")
+
         self.version = version
+        self.theme = theme
 
         # Create the Tkinter root
         self.root = tk.Tk()
@@ -33,6 +108,8 @@ class GUI:
         # Create a container frame
         self.container_frame = tk.Frame(self.content_frame)
         self.container_frame.pack(fill=tk.BOTH, expand=True)
+        if self.theme["os"] == "windows":
+            self.container_frame.config(padx=20, pady=20)
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -85,7 +162,7 @@ class GUI:
 
         self.root.mainloop()
     
-    def is_valid_csv(self, file_path):
+    def is_valid_csv(self, file_path) -> bool:
         """Check if the selected CSV file is valid"""
         try:
             csv_file = pd.read_csv(file_path, sep=',')
@@ -96,7 +173,8 @@ class GUI:
         except:
             return False
         
-    def create_overlay(self, message):
+    def create_overlay(self, message: str) -> tk.Label:
+        """Create a semi-transparent overlay with a message in the center"""
         width = self.root.winfo_width()
         height = self.root.winfo_height()
         image = Image.new('RGBA', (width, height), (128, 128, 128, 128))  # Semi-transparent grey
@@ -117,8 +195,8 @@ class GUI:
 
         return overlay
     
-    def get_account_path(self):
-        """Open csv file and store path in global variable"""
+    def get_account_path(self) -> None:
+        """Open csv file and store path"""
         self.account_history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
         if not self.account_history_path:
             return
@@ -130,7 +208,7 @@ class GUI:
             self.account_history_path = ""
             self.export_button.configure(state=tk.DISABLED)
 
-    def export(self):
+    def export(self) -> None:
         """Check if both csv files are selected, analyze data, and export html file"""
         if not self.account_history_path:
             return
@@ -164,9 +242,11 @@ class GUI:
 
         overlay.destroy()
 
-    def on_enter(self, event):
+    def on_enter(self, event: tk.Event) -> None:
+        """Change button border when mouse hovers over it"""
         event.widget.original_borderwidth = event.widget.cget("borderwidth")
         event.widget.config(borderwidth=3)
 
-    def on_leave(self, event):
+    def on_leave(self, event: tk.Event) -> None:
+        """Change button border back to normal when mouse leaves"""
         event.widget.config(borderwidth=event.widget.original_borderwidth)
