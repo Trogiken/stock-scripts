@@ -9,6 +9,7 @@ try:
     from PIL import Image, ImageTk
     from tkinter import filedialog
     from source.csv_functions import analyze_data, export_html
+    from source.version_check import get_version
 except ImportError:
     print("Please install the required packages: pip install -r requirements.txt")
     input("\nPress ENTER to exit...")
@@ -94,6 +95,10 @@ class GUI:
         self.container_frame.pack(fill=tk.BOTH, expand=True)
         if self.theme["os"] == "windows":
             self.container_frame.config(padx=20, pady=20)
+        
+        # Create a frame to hold the update inidicator
+        self.update_frame = tk.Frame(self.container_frame)
+        self.update_frame.pack(fill=tk.BOTH, expand=True)
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -113,6 +118,12 @@ class GUI:
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
         self.account_history_path = ""
+
+        # Create update indicator DEBUG
+        update_label = tk.Label(self.update_frame, text="Update Available", font=self.theme['normal_font'], bg="red", fg="white")
+        if get_version() != self.version:
+            update_label.pack(side=tk.RIGHT, anchor=tk.S)
+        # TODO add a way to remove the indicator
 
         # Create and label radio buttons
         report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
