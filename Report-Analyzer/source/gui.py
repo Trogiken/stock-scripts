@@ -47,11 +47,11 @@ class GUI:
                 "acc_btn_active_bg": "green",
                 "acc_btn_active_fg": "white",
                 "acc_btn_disabled_bg": "grey",
-                "acc_btn_disabled_fg": "white",
+                "acc_btn_disabled_fg": "black",
                 "expo_btn_active_bg": "blue",
                 "expo_btn_active_fg": "white",
                 "expo_btn_disabled_bg": "red",
-                "expo_btn_disabled_fg": "grey",
+                "expo_btn_disabled_fg": "white",
                 "title_font": ('Arial', 14),
                 "normal_font": ('Arial', 12),
                 "small_font": ('Arial', 10)
