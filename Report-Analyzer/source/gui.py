@@ -34,6 +34,7 @@ class GUI:
         account_history_path (str): The path to the account history csv file
 
     Methods:
+        hide_update_frame() -> None: Hide the update frame
         is_valid_csv(file_path: str) -> bool: Check if the selected CSV file is valid
         create_overlay(message: str) -> tk.Label: Create a semi-transparent overlay with a message in the center
         get_account_path() -> None: Open csv file and store path
@@ -100,9 +101,12 @@ class GUI:
         if self.version != get_version():
             self.update_frame = tk.Frame(self.container_frame)
             self.update_frame.pack(fill=tk.BOTH, expand=True)
+            if self.theme["os"] == "unix":
+                spacer = tk.Frame(self.update_frame, height=20)
+                spacer.pack()
             self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
             self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
-            self.update_button.pack(pady=2)
+            self.update_button.pack()
 
 
         # Create a horizontal frame for radio buttons
