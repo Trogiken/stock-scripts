@@ -131,7 +131,7 @@ class GUI:
 
         # Export HTML button
         self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
-        self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=30, state=tk.DISABLED)
+        self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=30, state=tk.DISABLED)
         self.export_button.pack(pady=2)
 
         # Bind enter and leave events to change button borders
@@ -189,11 +189,12 @@ class GUI:
         if self.is_valid_csv(self.account_history_path):
             self.acc_button.configure(bg=self.theme['acc_btn_active_bg'], fg=self.theme['acc_btn_active_fg'])
             self.export_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'])
-            self.export_button.configure(state=tk.NORMAL)  # TODO This is only for unix
+            self.export_button.configure(state=tk.NORMAL)
         else:
             tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
             self.account_history_path = ""
-            self.export_button.configure(state=tk.DISABLED)  # TODO This is only for unix
+            self.export_button.configure(bg=self.theme['expo_btn_active_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'])
+            self.export_button.configure(state=tk.DISABLED)
 
     def export(self) -> None:
         """Check if both csv files are selected, analyze data, and export html file"""
