@@ -1,8 +1,12 @@
+import sys
+
 try:
     import requests
 except ImportError:
     print("Please install the requests module: pip install requests")
-    exit(1)
+    input("\nPress ENTER to exit...")
+    sys.exit()
+
 
 def get_latest():
     """Gets the latest version of the script from the GitHub repository."""
