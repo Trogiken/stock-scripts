@@ -8,11 +8,11 @@ except ImportError:
     sys.exit()
 
 
-def get_latest():
+def get_latest(url: str):
     """Gets the latest version of the script from the GitHub repository."""
     version = None
     try:
-        response = requests.get("https://raw.githubusercontent.com/Trogiken/stock-scripts/Version-Checking/Report-Analyzer/version.txt")  # TODO Change url to main branch
+        response = requests.get(url)
         version = response.text.strip()
     except Exception:
         pass

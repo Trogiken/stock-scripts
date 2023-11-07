@@ -3,7 +3,10 @@
 import sys
 from source.gui import GUI
 
-version = "beta.2.3.3"
+current_version = "beta.2.3.3"
+# TODO Change url's once merged
+program_url = "https://github.com/Trogiken/stock-scripts/tree/Version-Checking/Report-Analyzer"
+version_url = "https://raw.githubusercontent.com/Trogiken/stock-scripts/Version-Checking/Report-Analyzer/version.txt"
 
 # TODO Work on commission calculations and usage
 # TODO Add export as PDF option
@@ -24,4 +27,4 @@ if __name__ == '__main__':
         input("\nPress ENTER to exit...")
         sys.exit()
     
-    GUI(os, version)
+    GUI(os, current_version, version_url, program_url)
