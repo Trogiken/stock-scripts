@@ -1,5 +1,7 @@
 import sys
 import time
+from source.csv_functions import analyze_data, export_html
+from source.version_check import get_latest
 
 try:
     import tkinter as tk
@@ -8,8 +10,7 @@ try:
     import webbrowser
     from PIL import Image, ImageTk
     from tkinter import filedialog
-    from source.csv_functions import analyze_data, export_html
-except ImportError:
+except ImportError as e:
     print("Please install the required packages: pip install -r requirements.txt")
     input("\nPress ENTER to exit...")
     sys.exit()
@@ -33,6 +34,8 @@ class GUI:
         account_history_path (str): The path to the account history csv file
 
     Methods:
+        hide_update_frame() -> None: Hide the update frame
+        open_html(location: str) -> None: Open the html file in the default browser
         is_valid_csv(file_path: str) -> bool: Check if the selected CSV file is valid
         create_overlay(message: str) -> tk.Label: Create a semi-transparent overlay with a message in the center
         get_account_path() -> None: Open csv file and store path
@@ -40,7 +43,7 @@ class GUI:
         on_enter(event: tk.Event) -> None: Change button border when mouse hovers over it
         on_leave(event: tk.Event) -> None: Change button border back to normal when mouse leaves
     """
-    def __init__(self, os, version):
+    def __init__(self, os, version, version_url, program_url):
         if os == 'windows':
             theme = {
                 "os": "windows",
@@ -74,8 +77,10 @@ class GUI:
         else:
             raise ValueError("Invalid operating system")
 
-        self.version = version
         self.theme = theme
+        self.version = version
+        self.version_url = version_url
+        self.program_url = program_url
 
         # Create the Tkinter root
         self.root = tk.Tk()
@@ -94,6 +99,18 @@ class GUI:
         self.container_frame.pack(fill=tk.BOTH, expand=True)
         if self.theme["os"] == "windows":
             self.container_frame.config(padx=20, pady=20)
+        
+        # Create a frame to hold the update inidicator
+        latest = get_latest(self.version_url)
+        if self.version != latest and latest is not None:
+            self.update_frame = tk.Frame(self.container_frame)
+            self.update_frame.pack(fill=tk.BOTH, expand=True)
+            if self.theme["os"] == "unix":
+                spacer = tk.Frame(self.update_frame, height=20)
+                spacer.pack()
+            self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
+            self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
+            self.update_button.pack()
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -147,7 +164,20 @@ class GUI:
 
         self.root.mainloop()
     
-    def is_valid_csv(self, file_path) -> bool:
+    def open_html(self, location: str) -> None:
+        if sys.platform.startswith('darwin') == 'darwin':  # Mac
+            subprocess.call(('open', location))
+        elif sys.platform.startswith('linux') == 'linux':  # Linux
+            subprocess.call(('xdg-open', location))
+        else:
+            webbrowser.open(location)
+    
+    def hide_update_frame(self) -> None:
+        """Open github page and hide button"""
+        self.open_html(self.program_url)
+        self.update_frame.destroy()
+    
+    def is_valid_csv(self, file_path: str) -> bool:
         """Check if the selected CSV file is valid"""
         try:
             csv_file = pd.read_csv(file_path, sep=',')
@@ -217,12 +247,7 @@ class GUI:
             export_html(data_frames, export_location)
             overlay.destroy()
             if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
-                if sys.platform == 'darwin':  # Mac
-                    subprocess.call(('open', export_location))
-                elif sys.platform == 'linux':  # Linux
-                    subprocess.call(('xdg-open', export_location))
-                else:
-                    webbrowser.open(export_location)
+                self.open_html(export_location)
         except:
             tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
             overlay.destroy()
