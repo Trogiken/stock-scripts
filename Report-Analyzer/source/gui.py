@@ -60,11 +60,11 @@ class GUI:
             theme = {
                 "os": "unix",
                 "acc_btn_active_bg": "white",
-                "acc_btn_active_fg": "teal",
+                "acc_btn_active_fg": "black",
                 "acc_btn_disabled_bg": "grey",
                 "acc_btn_disabled_fg": "black",
                 "expo_btn_active_bg": "white",
-                "expo_btn_active_fg": "teal",
+                "expo_btn_active_fg": "black",
                 "expo_btn_disabled_bg": "grey",
                 "expo_btn_disabled_fg": "black",
                 "title_font": ('Arial', 16),
@@ -172,7 +172,7 @@ class GUI:
         overlay.image = photo  # Keep a reference to the image
         overlay.place(x=0, y=0, relwidth=1, relheight=1)
         
-        label = tk.Label(overlay, text=message, font=self.theme['title_font'], bg='grey')  # TODO Maybe remove bg='grey'
+        label = tk.Label(overlay, text=message, font=self.theme['title_font'], bg="grey")  # TODO Fix weird label background
         label.place(relx=0.5, rely=0.5, anchor='c')
 
         self.root.update()
@@ -220,8 +220,8 @@ class GUI:
                     subprocess.call(('open', export_location))
                 elif sys.platform == 'linux':  # Linux
                     subprocess.call(('xdg-open', export_location))
-                else:  # Windows
-                    raise NotImplementedError
+                else:
+                    webbrowser.open(export_location)
         except:
             tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
             overlay.destroy()
