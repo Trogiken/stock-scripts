@@ -123,6 +123,8 @@ class GUI:
         update_label = tk.Label(self.update_frame, text="Update Available", font=self.theme['normal_font'], bg="red", fg="white")
         if get_version() != self.version:
             update_label.pack(side=tk.RIGHT, anchor=tk.S)
+        else:
+            update_label.pack_forget()  # DEBUG This might crash if label isn't packed
         # TODO add a way to remove the indicator
 
         # Create and label radio buttons
