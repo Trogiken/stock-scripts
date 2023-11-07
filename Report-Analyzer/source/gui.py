@@ -44,48 +44,32 @@ class GUI:
         if os == 'windows':
             theme = {
                 "os": "windows",
-                "bg": "white",
-                "fg": "black",
-                "highlightbackground": "black",
-                "highlightthickness": 2,
-                "button_bg": "white",
-                "button_fg": "black",
-                "button_highlightbackground": "black",
-                "button_highlightthickness": 2,
-                "button_activebackground": "white",
-                "button_activeforeground": "black",
-                "button_activehighlightbackground": "black",
-                "button_activehighlightthickness": 2,
-                "button_disabledforeground": "grey",
-                "button_disabledbackground": "white",
-                "button_disabledhighlightbackground": "black",
-                "button_disabledhighlightthickness": 2,
-                "button_font": ('Arial', 12),
-                "label_font": ('Arial', 14),
-                "version_font": ('Arial', 10)
+                "acc_btn_active_bg": "green",
+                "acc_btn_active_fg": "white",
+                "acc_btn_disabled_bg": "grey",
+                "acc_btn_disabled_fg": "black",
+                "expo_btn_active_bg": "blue",
+                "expo_btn_active_fg": "white",
+                "expo_btn_disabled_bg": "red",
+                "expo_btn_disabled_fg": "white",
+                "title_font": ('Arial', 14),
+                "normal_font": ('Arial', 12),
+                "small_font": ('Arial', 10)
             }
         elif os == 'unix':
             theme = {
                 "os": "unix",
-                "bg": "teal",
-                "fg": "white",
-                "highlightbackground": "black",
-                "highlightthickness": 2,
-                "button_bg": "teal",
-                "button_fg": "white",
-                "button_highlightbackground": "black",
-                "button_highlightthickness": 2,
-                "button_activebackground": "teal",
-                "button_activeforeground": "white",
-                "button_activehighlightbackground": "black",
-                "button_activehighlightthickness": 2,
-                "button_disabledforeground": "grey",
-                "button_disabledbackground": "teal",
-                "button_disabledhighlightbackground": "black",
-                "button_disabledhighlightthickness": 2,
-                "button_font": ('Arial', 12),
-                "label_font": ('Arial', 14),
-                "version_font": ('Arial', 10)
+                "acc_btn_active_bg": "white",
+                "acc_btn_active_fg": "teal",
+                "acc_btn_disabled_bg": "grey",
+                "acc_btn_disabled_fg": "black",
+                "expo_btn_active_bg": "white",
+                "expo_btn_active_fg": "teal",
+                "expo_btn_disabled_bg": "grey",
+                "expo_btn_disabled_fg": "black",
+                "title_font": ('Arial', 16),
+                "normal_font": ('Arial', 14),
+                "small_font": ('Arial', 12)
             }
         else:
             raise ValueError("Invalid operating system")
@@ -122,7 +106,8 @@ class GUI:
         # Create a frame for the version label
         self.version_frame = tk.Frame(self.container_frame)
         self.version_frame.pack(fill=tk.BOTH, expand=True)
-        self.version_frame.config(padx=10, pady=10)
+        if self.theme["os"] == "unix":
+            self.version_frame.config(padx=10, pady=10)
         
         # Initialize values
         self.radio_var = tk.IntVar()
@@ -132,21 +117,21 @@ class GUI:
         # Create and label radio buttons
         report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
         report_title_label.pack(side=tk.TOP, anchor=tk.N)
-        report_title_label.config(font=('Arial', 14))
+        report_title_label.config(font=self.theme["title_font"])
 
-        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=('Arial', 11)).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
 
         # Account History button
         self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
-        self.acc_button.configure(font=('Arial', 12), width=30)
+        self.acc_button.configure(bg=self.theme['acc_btn_disabled_bg'], fg=self.theme['acc_btn_disabled_fg'], font=self.theme['normal_font'], width=30)
         self.acc_button.pack(pady=2)
 
         # Export HTML button
         self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
-        self.export_button.configure(font=('Arial', 12), width=30, state=tk.DISABLED)
+        self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=30, state=tk.DISABLED)
         self.export_button.pack(pady=2)
 
         # Bind enter and leave events to change button borders
@@ -157,7 +142,7 @@ class GUI:
         self.export_button.bind("<Leave>", self.on_leave)
 
         # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=('Arial', 10))
+        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=self.theme['small_font'])
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
@@ -187,7 +172,7 @@ class GUI:
         overlay.image = photo  # Keep a reference to the image
         overlay.place(x=0, y=0, relwidth=1, relheight=1)
         
-        label = tk.Label(overlay, text=message, font=('Arial', 14), bg='grey')
+        label = tk.Label(overlay, text=message, font=self.theme['title_font'], bg='grey')  # TODO Maybe remove bg='grey'
         label.place(relx=0.5, rely=0.5, anchor='c')
 
         self.root.update()
@@ -202,11 +187,13 @@ class GUI:
             return
         
         if self.is_valid_csv(self.account_history_path):
-            self.export_button.configure(state=tk.NORMAL)
+            self.acc_button.configure(bg=self.theme['acc_btn_active_bg'], fg=self.theme['acc_btn_active_fg'])
+            self.export_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'])
+            self.export_button.configure(state=tk.NORMAL)  # TODO This is only for unix
         else:
             tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
             self.account_history_path = ""
-            self.export_button.configure(state=tk.DISABLED)
+            self.export_button.configure(state=tk.DISABLED)  # TODO This is only for unix
 
     def export(self) -> None:
         """Check if both csv files are selected, analyze data, and export html file"""
