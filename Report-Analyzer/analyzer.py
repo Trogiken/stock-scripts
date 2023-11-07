@@ -3,15 +3,12 @@
 import sys
 from source.gui import GUI
 
-version = "beta.2.1.3"  #  TODO Change to beta.2.2.3 when ready to release
+version = "beta.2.2.3"
 
-# TODO Check if TK operations work on Mac and Linux, if not using Qt6
 # TODO Work on commission calculations and usage
 # TODO Add export as PDF option
 # TODO Add option to export as Excel file
 # TODO Create graphs
-# TODO Add explicit datatypes and return types to functions
-# TODO Find a way to impliment cross-platform compatibility that doesn't involve so much repeated code. Maybe have one gui class that uses themes
 
 
 if __name__ == '__main__':
