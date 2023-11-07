@@ -3,7 +3,7 @@
 import sys
 from source.gui import GUI
 
-version = "beta.2.2.3"
+version = "beta.2.2.3"  # TODO Update version number to beta.2.3.3
 
 # TODO Work on commission calculations and usage
 # TODO Add export as PDF option

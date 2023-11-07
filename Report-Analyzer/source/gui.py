@@ -97,8 +97,13 @@ class GUI:
             self.container_frame.config(padx=20, pady=20)
         
         # Create a frame to hold the update inidicator
-        self.update_frame = tk.Frame(self.container_frame)
-        self.update_frame.pack(fill=tk.BOTH, expand=True)
+        if self.version != get_version():
+            self.update_frame = tk.Frame(self.container_frame)
+            self.update_frame.pack(fill=tk.BOTH, expand=True)
+            self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
+            self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
+            self.update_button.pack(pady=2)
+
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -118,14 +123,6 @@ class GUI:
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
         self.account_history_path = ""
-
-        # Create update indicator DEBUG
-        update_label = tk.Label(self.update_frame, text="Update Available", font=self.theme['normal_font'], bg="red", fg="white")
-        if get_version() != self.version:
-            update_label.pack(side=tk.RIGHT, anchor=tk.S)
-        else:
-            update_label.pack_forget()  # DEBUG This might crash if label isn't packed
-        # TODO add a way to remove the indicator
 
         # Create and label radio buttons
         report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
@@ -159,6 +156,10 @@ class GUI:
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
+    
+    def hide_update_frame(self) -> None:
+        """Hide the update frame"""
+        self.update_frame.destroy()
     
     def is_valid_csv(self, file_path) -> bool:
         """Check if the selected CSV file is valid"""
