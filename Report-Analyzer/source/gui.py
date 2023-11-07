@@ -1,7 +1,7 @@
 import sys
 import time
 from source.csv_functions import analyze_data, export_html
-from source.version_check import get_version
+from source.version_check import get_latest
 
 try:
     import tkinter as tk
@@ -98,7 +98,8 @@ class GUI:
             self.container_frame.config(padx=20, pady=20)
         
         # Create a frame to hold the update inidicator
-        if self.version != get_version():
+        latest = get_latest()
+        if self.version != latest and latest is not None:
             self.update_frame = tk.Frame(self.container_frame)
             self.update_frame.pack(fill=tk.BOTH, expand=True)
             if self.theme["os"] == "unix":

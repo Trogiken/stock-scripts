@@ -4,7 +4,7 @@ except ImportError:
     print("Please install the requests module: pip install requests")
     exit(1)
 
-def get_version():
+def get_latest():
     """Gets the latest version of the script from the GitHub repository."""
     version = None
     try:
@@ -13,4 +13,4 @@ def get_version():
     except Exception:
         pass
 
-    return "beta.2.2.2"  # TODO Change back
+    return version
