@@ -1,5 +1,7 @@
 import sys
 import time
+from source.csv_functions import analyze_data, export_html
+from source.version_check import get_version
 
 try:
     import tkinter as tk
@@ -8,9 +10,7 @@ try:
     import webbrowser
     from PIL import Image, ImageTk
     from tkinter import filedialog
-    from source.csv_functions import analyze_data, export_html
-    from source.version_check import get_version
-except ImportError:
+except ImportError as e:
     print("Please install the required packages: pip install -r requirements.txt")
     input("\nPress ENTER to exit...")
     sys.exit()
