@@ -76,6 +76,23 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
     for time_frame in df_dict:
         details_df = pd.DataFrame(df_dict[time_frame]["details"])
         if details_df.empty:  # Possible if only a commission was made that day and no trades
+            # only display commisson
+            total_df = pd.DataFrame({
+                'Number of Trades': [0],
+                'Number of Long Trades': [0],
+                'Number of Short Trades': [0],
+                'Total Return': [0],
+                'Average Return': [0],
+                'Batting Average': [0],
+                'Average Win': [0],
+                'Average Loss': [0],
+                'Win Loss Ratio': [0],
+                'Commission': [f"${round(df_dict[time_frame]['commission'], 2)}"],
+                'Net Profit': [0],
+                'Gross Profit': [0],
+                'Gross Loss': [0],
+            })
+            dataframes[time_frame] = {"details": details_df, "total": total_df}
             continue
 
         total_commission = round(df_dict[time_frame]["commission"], 2)
