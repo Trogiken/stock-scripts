@@ -13,12 +13,6 @@ try:
 except ImportError:
     import_error = True
     print("Please install pandas package: pip install pandas")
-# try:
-#     import matplotlib.pyplot as plt
-# except ImportError:
-#     import_error = True
-#     print("Please install matplotlib package: pip install matplotlib")
-
 
 if import_error:
     input("\nPress ENTER to exit...")
@@ -81,6 +75,8 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
 
     for time_frame in df_dict:
         details_df = pd.DataFrame(df_dict[time_frame]["details"])
+        if details_df.empty:  # Possible if only a commission was made that day and no trades
+            continue
 
         total_commission = round(df_dict[time_frame]["commission"], 2)
         number_of_trades = [details_df['P&L'].count()]

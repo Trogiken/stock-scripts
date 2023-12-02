@@ -217,13 +217,11 @@ class GUI:
             return
         
         if self.is_valid_csv(csv_path):
-            print('pass')
             self.account_history_path = csv_path
             self.acc_button.configure(bg=self.theme['acc_btn_active_bg'], fg=self.theme['acc_btn_active_fg'])
             self.export_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'])
             self.export_button.configure(state=tk.NORMAL)
         else:
-            print('regect')
             tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
             self.account_history_path = ""
             self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'])
