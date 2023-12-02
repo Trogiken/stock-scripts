@@ -1,9 +1,23 @@
-"""This program uses the 'Account History' csv file from tradingview to create a report"""
+"""
+This program uses the 'Account History' csv file from tradingview to create a report
+
+Compile Instructions:
+1. Create a virtual environment and install the required packages
+2. Install pyinstaller
+3. Activate the virtual environment and run the following command:
+    pyinstaller --noconfirm --onefile --windowed --add-data "path/to/version.txt;."  "path/to/main.py"
+"""
 
 import sys
 from source.gui import GUI
+from pathlib import Path
 
-current_version = "beta.2.3.3"
+try:
+    with open(Path(__file__).resolve().parent / "version.txt", "r") as f:
+        current_version = str(f.read().strip())
+except BaseException:
+    current_version = None
+
 program_url = "https://github.com/Trogiken/stock-scripts/tree/master/Report-Analyzer"
 version_url = "https://raw.githubusercontent.com/Trogiken/stock-scripts/master/Report-Analyzer/version.txt"
 

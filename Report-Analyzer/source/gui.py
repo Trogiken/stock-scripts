@@ -102,7 +102,7 @@ class GUI:
         
         # Create a frame to hold the update inidicator
         latest = get_latest(self.version_url)
-        if self.version != latest and latest is not None:
+        if (self.version is not None) and (latest is not None) and (self.version != latest):
             self.update_frame = tk.Frame(self.container_frame)
             self.update_frame.pack(fill=tk.BOTH, expand=True)
             if self.theme["os"] == "unix":
@@ -159,7 +159,7 @@ class GUI:
         self.export_button.bind("<Leave>", self.on_leave)
 
         # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {self.version}", font=self.theme['small_font'])
+        version_label = tk.Label(self.version_frame, text=f"Version {self.version if self.version is not None else 'Unknown'}", font=self.theme['small_font'])
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
@@ -212,15 +212,18 @@ class GUI:
     
     def get_account_path(self) -> None:
         """Open csv file and store path"""
-        self.account_history_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-        if not self.account_history_path:
+        csv_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+        if not csv_path:
             return
         
-        if self.is_valid_csv(self.account_history_path):
+        if self.is_valid_csv(csv_path):
+            print('pass')
+            self.account_history_path = csv_path
             self.acc_button.configure(bg=self.theme['acc_btn_active_bg'], fg=self.theme['acc_btn_active_fg'])
             self.export_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'])
             self.export_button.configure(state=tk.NORMAL)
         else:
+            print('regect')
             tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
             self.account_history_path = ""
             self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'])
