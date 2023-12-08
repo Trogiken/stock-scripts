@@ -282,17 +282,36 @@ class GUI:
         date_entrys = tk.Frame(date_frame)
         date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        def add_placeholder(entry, placeholder):
+            entry.insert(0, placeholder)
+            entry.config(fg='grey')
+
+            def clear_placeholder(event):
+                if entry.get() == placeholder:
+                    entry.delete(0, tk.END)
+                    entry.config(fg='white')
+
+            def insert_placeholder(event):
+                if entry.get() == '':
+                    entry.insert(0, placeholder)
+                    entry.config(fg='grey')
+
+            entry.bind('<FocusIn>', clear_placeholder)
+            entry.bind('<FocusOut>', insert_placeholder)
+
         # Create date range picker
         start_label = tk.Label(date_labels, text="Start Date", font=self.theme['normal_font'])
         start_label.pack(side=tk.TOP, anchor=tk.W)
 
         start_entry = tk.Entry(date_entrys, font=self.theme['normal_font'])
+        add_placeholder(start_entry, 'YYYY/MM/DD')
         start_entry.pack(side=tk.TOP, anchor=tk.W)
 
         end_label = tk.Label(date_labels, text="End Date", font=self.theme['normal_font'])
         end_label.pack(side=tk.TOP, anchor=tk.W)
 
         end_entry = tk.Entry(date_entrys, font=self.theme['normal_font'])
+        add_placeholder(end_entry, 'YYYY/MM/DD')
         end_entry.pack(side=tk.TOP, anchor=tk.W)
 
         # Create a frame to hold the buttons
