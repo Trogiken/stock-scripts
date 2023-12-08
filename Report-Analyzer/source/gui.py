@@ -168,9 +168,11 @@ class GUI:
         self.root.mainloop()
     
     def open_html(self, location: str) -> None:
-        if sys.platform.startswith('darwin') == 'darwin':  # Mac
+        print(sys.platform)  # darwin
+        if sys.platform.startswith('darwin'):  # Mac
+            print("called")
             subprocess.call(('open', location))
-        elif sys.platform.startswith('linux') == 'linux':  # Linux
+        elif sys.platform.startswith('linux'):  # Linux
             subprocess.call(('xdg-open', location))
         else:
             webbrowser.open(location)
