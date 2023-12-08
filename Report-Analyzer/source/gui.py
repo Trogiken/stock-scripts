@@ -105,10 +105,8 @@ class GUI:
         latest = get_latest(self.version_url)
         if (self.version is not None) and (latest is not None) and (self.version != latest):
             self.update_frame = tk.Frame(self.container_frame)
-            self.update_frame.pack(fill=tk.BOTH, expand=True)
-            if self.theme["os"] == "unix":
-                spacer = tk.Frame(self.update_frame, height=20)
-                spacer.pack()
+            # DEBUG Changes to fill=tk.X expand=True and removed spacer
+            self.update_frame.pack(fill=tk.X, expand=True)
             self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
             self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
             self.update_button.pack()
@@ -166,11 +164,18 @@ class GUI:
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
+
+    def on_enter(self, event: tk.Event) -> None:
+        """Change button border when mouse hovers over it"""
+        event.widget.original_borderwidth = event.widget.cget("borderwidth")
+        event.widget.config(borderwidth=3)
+
+    def on_leave(self, event: tk.Event) -> None:
+        """Change button border back to normal when mouse leaves"""
+        event.widget.config(borderwidth=event.widget.original_borderwidth)
     
     def open_html(self, location: str) -> None:
-        print(sys.platform)  # darwin
         if sys.platform.startswith('darwin'):  # Mac
-            print("called")
             subprocess.call(('open', location))
         elif sys.platform.startswith('linux'):  # Linux
             subprocess.call(('xdg-open', location))
@@ -214,15 +219,6 @@ class GUI:
         time.sleep(1)
 
         return overlay
-    
-    def on_enter(self, event: tk.Event) -> None:
-        """Change button border when mouse hovers over it"""
-        event.widget.original_borderwidth = event.widget.cget("borderwidth")
-        event.widget.config(borderwidth=3)
-
-    def on_leave(self, event: tk.Event) -> None:
-        """Change button border back to normal when mouse leaves"""
-        event.widget.config(borderwidth=event.widget.original_borderwidth)
     
     def get_account_path(self) -> None:
         """Open csv file and store path"""
@@ -295,6 +291,10 @@ class GUI:
         date_entrys = tk.Frame(date_frame)
         date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        def cancel():
+            self.radio_var.set(4)
+            window.destroy()
+
         def apply():
                 """Set the custom date range"""
                 if start_entry.get() and end_entry.get():
@@ -353,7 +353,7 @@ class GUI:
         button_frame.pack(fill=tk.BOTH, expand=True)
 
         # Create the cancel button
-        cancel_button = tk.Button(button_frame, text="Cancel", command=window.destroy)
+        cancel_button = tk.Button(button_frame, text="Cancel", command=cancel)
         cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=10)
         cancel_button.pack(side=tk.LEFT)
 
