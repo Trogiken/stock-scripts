@@ -35,7 +35,8 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
 
     dataframes = {}
     df_dict = {}
-
+    
+    # TODO Add another option for custom time frame
     for _, row in account_df.iterrows():
         date = row['Time'].split(' ')[0]
         year = date.split('-')[0]
