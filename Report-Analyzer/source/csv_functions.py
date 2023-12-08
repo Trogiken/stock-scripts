@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 import os
 
@@ -19,7 +20,7 @@ if import_error:
     sys.exit()
 
 
-def analyze_data(account_history_path: str, time_frame: int) -> dict:
+def analyze_data(account_history_path: str, time_frame: int, custom_range=(None, None)) -> dict:
     """Analyze the data from the CSV file and return the dataframe with the results"""
     account_df = pd.read_csv(account_history_path, sep=',')
 
@@ -63,6 +64,20 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
                 raise ValueError("Invalid month")
         elif time_frame == 4:  # yearly
             time_interval = year
+        elif time_frame == 5:  # custom
+            start, end = custom_range
+            start = datetime.strptime(start, "%Y-%m-%d").date()
+            end = datetime.strptime(end, "%Y-%m-%d").date()
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+            if start is None or end is None:
+                raise ValueError("Empty custom range")
+            if start > end:
+                raise ValueError("Invalid custom range (start > end)")
+
+            if start <= date <= end:
+                time_interval = date
+            else:
+                continue
         else:
             raise ValueError("Invalid time frame")
 

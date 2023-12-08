@@ -1,5 +1,6 @@
 import sys
 import time
+import re
 from source.csv_functions import analyze_data, export_html
 from source.version_check import get_latest
 
@@ -130,6 +131,7 @@ class GUI:
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
         self.account_history_path = ""
+        self.custom_date_range = (None, None)
 
         # Create and label radio buttons
         report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
@@ -239,7 +241,7 @@ class GUI:
         
         overlay = self.create_overlay("Exporting...")
         try:
-            data_frames = analyze_data(self.account_history_path, self.radio_var.get())
+            data_frames = analyze_data(self.account_history_path, self.radio_var.get(), self.custom_date_range)
         except:
             tk.messagebox.showerror("Error", f"An error occurred while analyzing the data.")
             overlay.destroy()
@@ -282,6 +284,18 @@ class GUI:
         date_entrys = tk.Frame(date_frame)
         date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        def apply():
+                """Apply the custom time window"""
+                if start_entry.get() and end_entry.get():
+                    pattern = r"^\d{4}-\d{2}-\d{2}$"
+                    if re.match(pattern, start_entry.get()) and re.match(pattern, end_entry.get()):
+                        self.custom_date_range = (start_entry.get(), end_entry.get())
+                        window.destroy()
+                    else:
+                        tk.messagebox.showerror("Error", "Invalid date format. Please use YYYY/MM/DD.")
+                else:
+                    tk.messagebox.showerror("Error", "Please enter a start and end date.")
+
         def add_placeholder(entry, placeholder):
             entry.insert(0, placeholder)
             entry.config(fg='grey')
@@ -304,14 +318,20 @@ class GUI:
         start_label.pack(side=tk.TOP, anchor=tk.W)
 
         start_entry = tk.Entry(date_entrys, font=self.theme['normal_font'])
-        add_placeholder(start_entry, 'YYYY/MM/DD')
+        if self.custom_date_range[0]:
+            start_entry.insert(0, self.custom_date_range[0])
+        else:
+            add_placeholder(start_entry, 'YYYY-MM-DD')
         start_entry.pack(side=tk.TOP, anchor=tk.W)
 
         end_label = tk.Label(date_labels, text="End Date", font=self.theme['normal_font'])
         end_label.pack(side=tk.TOP, anchor=tk.W)
 
         end_entry = tk.Entry(date_entrys, font=self.theme['normal_font'])
-        add_placeholder(end_entry, 'YYYY/MM/DD')
+        if self.custom_date_range[1]:
+            end_entry.insert(0, self.custom_date_range[1])
+        else:
+            add_placeholder(end_entry, 'YYYY-MM-DD')
         end_entry.pack(side=tk.TOP, anchor=tk.W)
 
         # Create a frame to hold the buttons
@@ -321,12 +341,12 @@ class GUI:
         # Create the cancel button
         cancel_button = tk.Button(button_frame, text="Cancel", command=window.destroy)
         cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=10)
-        cancel_button.pack(side=tk.LEFT)  # Pack to the left with padding
+        cancel_button.pack(side=tk.LEFT)
 
         # Create the apply button
-        ok_button = tk.Button(button_frame, text="Apply", command=window.destroy)
-        ok_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=10)
-        ok_button.pack(side=tk.RIGHT)  # Pack to the right with padding
+        apply_button = tk.Button(button_frame, text="Apply", command=apply)
+        apply_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=10)
+        apply_button.pack(side=tk.RIGHT)
 
     def on_enter(self, event: tk.Event) -> None:
         """Change button border when mouse hovers over it"""
