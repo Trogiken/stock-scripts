@@ -37,30 +37,43 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
     df_dict = {}
 
     for _, row in account_df.iterrows():
+        date = row['Time'].split(' ')[0]
+        year = date.split('-')[0]
+        month = date.split('-')[1]
+        #  day = date.split('-')[2]
+
         # separate by time frame
-        time = ""
+        time_interval = ""
         if time_frame == 1:  # daily
-            time = row['Time'].split(' ')[0]
-            if time not in df_dict:
-                df_dict[time] = {"details": [], "commission": 0.0}
+            time_interval = date
         elif time_frame == 2:  # monthly
-            time = row['Time'].split(' ')[0].split('-')[0] + '-' + row['Time'].split(' ')[0].split('-')[1]
-            if time not in df_dict:
-                df_dict[time] = {"details": [], "commission": 0.0}
-        elif time_frame == 3:  # quarterly # DEBUG
-            time = row['Time'].split(' ')[0].split('-')[0] + '-' + str(int(row['Time'].split(' ')[0].split('-')[1]) // 3)
-            if time not in df_dict:
-                df_dict[time] = {"details": [], "commission": 0.0}
+            time_interval = year + '-' + month
+        elif time_frame == 3:  # quarterly # DEBUG Check format of exported csv for single digit months ex: 2021-1 vs 2021-01
+            time_interval = year + '-'
+            if month in ["01", "02", "03"]:
+                time_interval += "Q1"
+            elif month in ["04", "05", "06"]:
+                time_interval += "Q2"
+            elif month in ["07", "08", "09"]:
+                time_interval += "Q3"
+            elif month in ["10", "11", "12"]:
+                time_interval += "Q4"
+            else:
+                raise ValueError("Invalid month")
         elif time_frame == 4:  # yearly
-            time = row['Time'].split(' ')[0].split('-')[0]
-            if time not in df_dict:
-                df_dict[time] = {"details": [], "commission": 0.0}
+            time_interval = year
+        else:
+            raise ValueError("Invalid time frame")
 
-        if "Commission" in row['Action']:
-            df_dict[time]["commission"] += float(row['P&L'])
+        if time_interval not in df_dict:
+            df_dict[time_interval] = {"details": [], "commission": 0.0}
+
+        if "Commission" in row['Action']:  # Add commission to the total and skip rest of processing
+            df_dict[time_interval]["commission"] += float(row['P&L'])
             continue
-
-        df_dict[time]["details"].append({
+        
+        # Add the trade details to the dictionary for the time interval
+        df_dict[time_interval]["details"].append({
             'Time': row['Time'],
             'Position': re.search(position_type_pattern, row['Action']).group(1),  # long or short position,
             'Symbol': re.search(symbol_pattern, row['Action']).group(1),  # symbol of the stock,
@@ -73,6 +86,7 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
             '%': round((float(row['Balance After']) - float(row['Balance Before'])) / float(row['Balance Before']) * 100, 2),
         })
 
+    # Create total dataframes and append to dataframes dictionary
     for time_frame in df_dict:
         details_df = pd.DataFrame(df_dict[time_frame]["details"])
         if details_df.empty:  # Possible if only a commission was made that day and no trades
