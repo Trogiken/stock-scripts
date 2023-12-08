@@ -215,6 +215,15 @@ class GUI:
 
         return overlay
     
+    def on_enter(self, event: tk.Event) -> None:
+        """Change button border when mouse hovers over it"""
+        event.widget.original_borderwidth = event.widget.cget("borderwidth")
+        event.widget.config(borderwidth=3)
+
+    def on_leave(self, event: tk.Event) -> None:
+        """Change button border back to normal when mouse leaves"""
+        event.widget.config(borderwidth=event.widget.original_borderwidth)
+    
     def get_account_path(self) -> None:
         """Open csv file and store path"""
         csv_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
@@ -262,7 +271,7 @@ class GUI:
         overlay.destroy()
     
     def custom_time_window(self) -> None:
-        """Create a new window to select a custom time frame window"""
+        """Create a new window to select a custom time frame"""
         # Create new window
         window = tk.Toplevel(self.root)
         window.title("Custom Time Frame")
@@ -287,7 +296,7 @@ class GUI:
         date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         def apply():
-                """Apply the custom time window"""
+                """Set the custom date range"""
                 if start_entry.get() and end_entry.get():
                     pattern = r"^\d{4}-\d{2}-\d{2}$"
                     if re.match(pattern, start_entry.get()) and re.match(pattern, end_entry.get()):
@@ -299,15 +308,18 @@ class GUI:
                     tk.messagebox.showerror("Error", "Please enter a start and end date.")
 
         def add_placeholder(entry, placeholder):
+            """Add a placeholder to the entry field"""
             entry.insert(0, placeholder)
             entry.config(fg='grey')
 
             def clear_placeholder(event):
+                """Clear the placeholder when the entry is clicked on"""
                 if entry.get() == placeholder:
                     entry.delete(0, tk.END)
                     entry.config(fg='white')
 
             def insert_placeholder(event):
+                """Insert the placeholder when the entry is clicked off of and it is empty"""
                 if entry.get() == '':
                     entry.insert(0, placeholder)
                     entry.config(fg='grey')
@@ -349,12 +361,3 @@ class GUI:
         apply_button = tk.Button(button_frame, text="Apply", command=apply)
         apply_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=10)
         apply_button.pack(side=tk.RIGHT)
-
-    def on_enter(self, event: tk.Event) -> None:
-        """Change button border when mouse hovers over it"""
-        event.widget.original_borderwidth = event.widget.cget("borderwidth")
-        event.widget.config(borderwidth=3)
-
-    def on_leave(self, event: tk.Event) -> None:
-        """Change button border back to normal when mouse leaves"""
-        event.widget.config(borderwidth=event.widget.original_borderwidth)
