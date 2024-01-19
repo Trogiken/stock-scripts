@@ -33,6 +33,7 @@ class GUI:
         version_frame (tk.Frame): The frame that contains the version label
         radio_var (tk.IntVar): The variable that stores the value of the radio buttons
         account_history_path (str): The path to the account history csv file
+        custom_date_range (tuple): The custom date range selected by the user
 
     Methods:
         hide_update_frame() -> None: Hide the update frame
@@ -43,6 +44,7 @@ class GUI:
         export() -> None: Check if both csv files are selected, analyze data, and export html file
         on_enter(event: tk.Event) -> None: Change button border when mouse hovers over it
         on_leave(event: tk.Event) -> None: Change button border back to normal when mouse leaves
+        custom_time_window() -> None: Create a new window to select a custom time frame
     """
     def __init__(self, os, version, version_url, program_url):
         if os == 'windows':
@@ -316,7 +318,7 @@ class GUI:
                 """Clear the placeholder when the entry is clicked on"""
                 if entry.get() == placeholder:
                     entry.delete(0, tk.END)
-                    entry.config(fg='white')
+                    entry.config(fg='black')
 
             def insert_placeholder(event):
                 """Insert the placeholder when the entry is clicked off of and it is empty"""
