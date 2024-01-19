@@ -30,7 +30,7 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
     # regex patterns to extract the data
     symbol_pattern = r"symbol (\w+:\w+)"
     closed_price_pattern = r"price (\d+(?:\.\d+)?)"
-    shares_pattern = r"for (\d+) shares"
+    shares_pattern = r"for (\d+(\.\d+)?) shares"
     position_type_pattern = r"Close (long|short) position"
 
     dataframes = {}
