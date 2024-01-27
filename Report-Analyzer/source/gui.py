@@ -206,8 +206,9 @@ class GUI:
         if os.path.exists(lock):
             os.remove(lock)
 
-        overlay.destroy()  # Hide overlay after update is finished
-    
+        overlay.destroy()
+        sys.exit()
+
     def cancel_update_button(self) -> None:
         """Hide button"""
         self.update_overlay.destroy()
