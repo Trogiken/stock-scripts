@@ -105,19 +105,19 @@ class GUI:
         
         update_check = self.update_man.check_update()
         if update_check.get('has_update'):
-            self.update_frame = tk.Frame(self.container_frame)
-            self.update_frame.pack(fill=tk.X, expand=True)
-            version_change_label = tk.Label(self.update_frame, text=f"Version {update_check.get('local_version')} -> {update_check.get('web_version')}", font=self.theme['normal_font'])
-            version_change_label.pack(side=tk.LEFT, anchor=tk.N)
+            self.update_overlay = self.create_overlay(300, 150)
+            version_change_label = tk.Label(self.update_overlay, text=f"Version {update_check.get('local_version')} -> {update_check.get('web_version')}", font=self.theme['normal_font'])
+            version_change_label.pack(side=tk.TOP, anchor=tk.N)
+
+            # update button
+            update_button = tk.Button(self.update_overlay, text="Update", command=self.update_button)
+            update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=15)
+            update_button.pack(side=tk.LEFT, anchor=tk.CENTER, padx=5)
 
             # cancel button
-            cancel_button = tk.Button(self.update_frame, text="Cancel", command=self.cancel_update_button)
-            cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=10)
-            cancel_button.pack(side=tk.RIGHT, anchor=tk.N)
-            # update button
-            update_button = tk.Button(self.update_frame, text="Update", command=self.update_button)
-            update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
-            update_button.pack(side=tk.RIGHT, anchor=tk.N)
+            cancel_button = tk.Button(self.update_overlay, text="Cancel", command=self.cancel_update_button)
+            cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=15)
+            cancel_button.pack(side=tk.LEFT, anchor=tk.CENTER, padx=5)
             
 
         # Create a horizontal frame for radio buttons
@@ -193,10 +193,15 @@ class GUI:
     
     def update_button(self) -> None:
         """Update the program"""
-        self.update_frame.destroy()
+        self.update_overlay.destroy()
         overlay = self.loading_overlay("Updating...", 0)  # Show overlay
 
-        lock = self.update_man.update()
+        try:
+            lock = self.update_man.update()
+        except pyupgrader.update.NoUpdateError:
+            tk.messagebox.showerror("Error", "No update available.")
+            overlay.destroy()
+            return
 
         if os.path.exists(lock):
             os.remove(lock)
@@ -205,7 +210,7 @@ class GUI:
     
     def cancel_update_button(self) -> None:
         """Hide button"""
-        self.update_frame.destroy()
+        self.update_overlay.destroy()
     
     def is_valid_csv(self, file_path: str) -> bool:
         """Check if the selected CSV file is valid"""
