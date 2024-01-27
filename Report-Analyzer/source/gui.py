@@ -200,7 +200,7 @@ class GUI:
         except:
             return False
         
-    def create_overlay(self, message: str) -> tk.Label:
+    def export_overlay(self, message: str) -> tk.Label:
         """Create a semi-transparent overlay with a message in the center"""
         width = self.root.winfo_width()
         height = self.root.winfo_height()
@@ -221,6 +221,19 @@ class GUI:
         time.sleep(1)
 
         return overlay
+    
+    def create_overlay(self, width, height) -> tk.Label:
+        """Create an overlay"""
+        if height > self.root.winfo_height() or width > self.root.winfo_width():
+            raise ValueError("Overlay dimensions exceed root bounds.")
+
+        overlay = tk.Label(self.root, bd=1, relief=tk.SOLID)  # Add border and relief
+        overlay.place(relx=0.5, rely=0.5, anchor='c', width=width, height=height)
+
+        self.root.update()
+
+        return overlay
+
     
     def get_account_path(self) -> None:
         """Open csv file and store path"""
@@ -248,7 +261,7 @@ class GUI:
         if not export_location:
             return
         
-        overlay = self.create_overlay("Exporting...")
+        overlay = self.export_overlay("Exporting...")
         try:
             data_frames = analyze_data(self.account_history_path, self.radio_var.get(), self.custom_date_range)
         except:
@@ -269,15 +282,11 @@ class GUI:
         overlay.destroy()
     
     def custom_time_window(self) -> None:
-        """Create a new window to select a custom time frame"""
-        # Create new window
-        window = tk.Toplevel(self.root)
-        window.title("Custom Time Frame")
-        window.geometry("300x150")
-        window.resizable(False, False)
+        """Create an overlay to select a custom time frame"""
+        overlay = self.create_overlay(300, 150)
 
         # Create a container frame with padding
-        container_frame = tk.Frame(window)
+        container_frame = tk.Frame(overlay)
         container_frame.pack(fill=tk.BOTH, expand=True)
         container_frame.config(padx=20, pady=20)
 
@@ -294,23 +303,24 @@ class GUI:
         date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         def cancel():
+            """Cancel the custom date range selection"""
             if self.custom_date_range[0] and self.custom_date_range[1]:
                 self.radio_var.set(5)
             else:
                 self.radio_var.set(4)
-            window.destroy()
+            overlay.destroy()
 
-        def apply():
-                """Set the custom date range"""
-                if start_entry.get() and end_entry.get():
-                    pattern = r"^\d{4}-\d{2}-\d{2}$"
-                    if re.match(pattern, start_entry.get()) and re.match(pattern, end_entry.get()):
-                        self.custom_date_range = (start_entry.get(), end_entry.get())
-                        window.destroy()
-                    else:
-                        tk.messagebox.showerror("Error", "Invalid date format. Please use YYYY/MM/DD.")
+        def apply(start, end):
+            """Set the custom date range"""
+            if start and end:
+                pattern = r"^\d{4}-\d{2}-\d{2}$"
+                if re.match(pattern, start) and re.match(pattern, end):
+                    self.custom_date_range = (start, end)
+                    overlay.destroy()
                 else:
-                    tk.messagebox.showerror("Error", "Please enter a start and end date.")
+                    tk.messagebox.showerror("Error", "Invalid date format. Please use YYYY/MM/DD.")
+            else:
+                tk.messagebox.showerror("Error", "Please enter a start and end date.")
 
         def add_placeholder(entry, placeholder):
             """Add a placeholder to the entry field"""
@@ -363,6 +373,6 @@ class GUI:
         cancel_button.pack(side=tk.LEFT)
 
         # Create the apply button
-        apply_button = tk.Button(button_frame, text="Apply", command=apply)
+        apply_button = tk.Button(button_frame, text="Apply", command=lambda: apply(start_entry.get(), end_entry.get()))
         apply_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=10)
         apply_button.pack(side=tk.RIGHT)
