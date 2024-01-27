@@ -4,7 +4,6 @@ import re
 import os
 import pyupgrader
 from source.csv_functions import analyze_data, export_html
-from source.version_check import get_latest
 
 try:
     import tkinter as tk
@@ -104,16 +103,6 @@ class GUI:
         if self.theme["os"] == "windows":
             self.container_frame.config(padx=20, pady=20)
         
-        # Create a frame to hold the update inidicator
-        latest = get_latest(self.version_url)
-        if (self.version is not None) and (latest is not None) and (self.version != latest):
-            self.update_frame = tk.Frame(self.container_frame)
-            # DEBUG Changes to fill=tk.X expand=True and removed spacer
-            self.update_frame.pack(fill=tk.X, expand=True)
-            self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
-            self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
-            self.update_button.pack()
-        
         update_check = self.update_man.check_update()
         if update_check.get('has_update'):
             self.update_frame = tk.Frame(self.container_frame)
@@ -180,7 +169,7 @@ class GUI:
         self.export_button.bind("<Leave>", self.on_leave)
 
         # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {self.version if self.version is not None else 'Unknown'}", font=self.theme['small_font'])
+        version_label = tk.Label(self.version_frame, text=f"Version {update_check.get('local_version')}", font=self.theme['small_font'])
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
