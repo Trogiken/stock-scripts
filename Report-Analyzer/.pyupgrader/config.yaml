@@ -3,4 +3,4 @@ description: TradingView Report Analyzer
 hash_db: hashes.db
 required_only: true
 startup_path: 'main.py'
-version: 2.4.5b1
+version: 2.4.6b1
