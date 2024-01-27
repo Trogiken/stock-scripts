@@ -105,9 +105,9 @@ class GUI:
         
         update_check = self.update_man.check_update()
         if update_check.get('has_update'):
-            self.update_overlay = self.create_overlay(300, 150)
+            self.update_overlay = self.create_overlay(300, 100)
             version_change_label = tk.Label(self.update_overlay, text=f"Version {update_check.get('local_version')} -> {update_check.get('web_version')}", font=self.theme['normal_font'])
-            version_change_label.pack(side=tk.TOP, anchor=tk.N)
+            version_change_label.pack(side=tk.TOP, anchor=tk.N, pady=10)
 
             # update button
             update_button = tk.Button(self.update_overlay, text="Update", command=self.update_button)
