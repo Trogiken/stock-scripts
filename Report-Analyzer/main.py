@@ -5,7 +5,7 @@ Compile Instructions:
 1. Create a virtual environment and install the required packages
 2. Install pyinstaller
 3. Activate the virtual environment and run the following command:
-    pyinstaller --noconfirm --onefile --windowed --add-data "path/to/version.txt;."  "path/to/main.py"
+    pyinstaller --noconfirm --onefile --windowed "path/to/main.py"
 """
 
 import os
