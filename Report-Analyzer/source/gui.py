@@ -294,7 +294,10 @@ class GUI:
         date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         def cancel():
-            self.radio_var.set(4)
+            if self.custom_date_range[0] and self.custom_date_range[1]:
+                self.radio_var.set(5)
+            else:
+                self.radio_var.set(4)
             window.destroy()
 
         def apply():
