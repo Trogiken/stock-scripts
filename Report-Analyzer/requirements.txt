@@ -2,3 +2,4 @@ pandas
 tk
 pillow
 requests
+pyupgrader

@@ -2,7 +2,6 @@ import sys
 import time
 import re
 import os
-import pyupgrader
 from source.csv_functions import analyze_data, export_html
 
 try:
@@ -10,6 +9,7 @@ try:
     import pandas as pd
     import subprocess
     import webbrowser
+    import pyupgrader
     from PIL import Image, ImageTk
     from tkinter import filedialog
 except ImportError as e:
