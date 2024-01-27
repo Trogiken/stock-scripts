@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 import os
 
@@ -19,7 +20,7 @@ if import_error:
     sys.exit()
 
 
-def analyze_data(account_history_path: str, time_frame: int) -> dict:
+def analyze_data(account_history_path: str, time_frame: int, custom_range=(None, None)) -> dict:
     """Analyze the data from the CSV file and return the dataframe with the results"""
     account_df = pd.read_csv(account_history_path, sep=',')
 
@@ -35,7 +36,8 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
 
     dataframes = {}
     df_dict = {}
-
+    
+    # TODO Add another option for custom time frame
     for _, row in account_df.iterrows():
         date = row['Time'].split(' ')[0]
         year = date.split('-')[0]
@@ -62,6 +64,20 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
                 raise ValueError("Invalid month")
         elif time_frame == 4:  # yearly
             time_interval = year
+        elif time_frame == 5:  # custom
+            start, end = custom_range
+            start = datetime.strptime(start, "%Y-%m-%d").date()
+            end = datetime.strptime(end, "%Y-%m-%d").date()
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+            if start is None or end is None:
+                raise ValueError("Empty custom range")
+            if start > end:
+                raise ValueError("Invalid custom range (start > end)")
+
+            if start <= date <= end:
+                time_interval = date
+            else:
+                continue
         else:
             raise ValueError("Invalid time frame")
 
@@ -78,7 +94,7 @@ def analyze_data(account_history_path: str, time_frame: int) -> dict:
             'Position': re.search(position_type_pattern, row['Action']).group(1),  # long or short position,
             'Symbol': re.search(symbol_pattern, row['Action']).group(1),  # symbol of the stock,
             'Quantity': re.search(shares_pattern, row['Action']).group(1),  # quantity of shares,
-# Removed because its never right           'Opened Price': round(float(row['Balance Before']) - (float(re.search(closed_price_pattern, row['Action']).group(1)) * int(re.search(shares_pattern, row['Action']).group(1))) / int(re.search(shares_pattern, row['Action']).group(1)), 2),
+            # Removed because it's never right           'Opened Price': round(float(row['Balance Before']) - (float(re.search(closed_price_pattern, row['Action']).group(1)) * int(re.search(shares_pattern, row['Action']).group(1))) / int(re.search(shares_pattern, row['Action']).group(1)), 2),
             'Closed Price': round(float(re.search(closed_price_pattern, row['Action']).group(1)), 2),  # price at which the position was closed
             'Balance Before': round(float(row['Balance Before']), 2),
             'Balance After': round(float(row['Balance After']), 2),

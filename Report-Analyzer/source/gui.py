@@ -1,5 +1,6 @@
 import sys
 import time
+import re
 from source.csv_functions import analyze_data, export_html
 from source.version_check import get_latest
 
@@ -32,6 +33,7 @@ class GUI:
         version_frame (tk.Frame): The frame that contains the version label
         radio_var (tk.IntVar): The variable that stores the value of the radio buttons
         account_history_path (str): The path to the account history csv file
+        custom_date_range (tuple): The custom date range selected by the user
 
     Methods:
         hide_update_frame() -> None: Hide the update frame
@@ -42,6 +44,7 @@ class GUI:
         export() -> None: Check if both csv files are selected, analyze data, and export html file
         on_enter(event: tk.Event) -> None: Change button border when mouse hovers over it
         on_leave(event: tk.Event) -> None: Change button border back to normal when mouse leaves
+        custom_time_window() -> None: Create a new window to select a custom time frame
     """
     def __init__(self, os, version, version_url, program_url):
         if os == 'windows':
@@ -85,7 +88,7 @@ class GUI:
         # Create the Tkinter root
         self.root = tk.Tk()
         self.root.title("Report Analyzer")
-        self.root.geometry("400x300")
+        self.root.geometry("460x300")
         self.root.resizable(False, False)
         self.root.iconphoto(False, tk.PhotoImage(data="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"))
 
@@ -104,10 +107,8 @@ class GUI:
         latest = get_latest(self.version_url)
         if (self.version is not None) and (latest is not None) and (self.version != latest):
             self.update_frame = tk.Frame(self.container_frame)
-            self.update_frame.pack(fill=tk.BOTH, expand=True)
-            if self.theme["os"] == "unix":
-                spacer = tk.Frame(self.update_frame, height=20)
-                spacer.pack()
+            # DEBUG Changes to fill=tk.X expand=True and removed spacer
+            self.update_frame.pack(fill=tk.X, expand=True)
             self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
             self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
             self.update_button.pack()
@@ -130,6 +131,7 @@ class GUI:
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
         self.account_history_path = ""
+        self.custom_date_range = (None, None)
 
         # Create and label radio buttons
         report_title_label = tk.Label(self.radio_button_frame, text="Time Frame of Report")
@@ -140,6 +142,7 @@ class GUI:
         tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
         tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
         tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(self.radio_button_frame, text="Custom", command=self.custom_time_window, variable=self.radio_var, value=5, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
 
         # Account History button
         self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
@@ -163,11 +166,20 @@ class GUI:
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
+
+    def on_enter(self, event: tk.Event) -> None:
+        """Change button border when mouse hovers over it"""
+        event.widget.original_borderwidth = event.widget.cget("borderwidth")
+        event.widget.config(borderwidth=3)
+
+    def on_leave(self, event: tk.Event) -> None:
+        """Change button border back to normal when mouse leaves"""
+        event.widget.config(borderwidth=event.widget.original_borderwidth)
     
     def open_html(self, location: str) -> None:
-        if sys.platform.startswith('darwin') == 'darwin':  # Mac
+        if sys.platform.startswith('darwin'):  # Mac
             subprocess.call(('open', location))
-        elif sys.platform.startswith('linux') == 'linux':  # Linux
+        elif sys.platform.startswith('linux'):  # Linux
             subprocess.call(('xdg-open', location))
         else:
             webbrowser.open(location)
@@ -188,7 +200,7 @@ class GUI:
         except:
             return False
         
-    def create_overlay(self, message: str) -> tk.Label:
+    def export_overlay(self, message: str) -> tk.Label:
         """Create a semi-transparent overlay with a message in the center"""
         width = self.root.winfo_width()
         height = self.root.winfo_height()
@@ -209,6 +221,19 @@ class GUI:
         time.sleep(1)
 
         return overlay
+    
+    def create_overlay(self, width, height) -> tk.Label:
+        """Create an overlay"""
+        if height > self.root.winfo_height() or width > self.root.winfo_width():
+            raise ValueError("Overlay dimensions exceed root bounds.")
+
+        overlay = tk.Label(self.root, bd=1, relief=tk.SOLID)  # Add border and relief
+        overlay.place(relx=0.5, rely=0.5, anchor='c', width=width, height=height)
+
+        self.root.update()
+
+        return overlay
+
     
     def get_account_path(self) -> None:
         """Open csv file and store path"""
@@ -236,9 +261,9 @@ class GUI:
         if not export_location:
             return
         
-        overlay = self.create_overlay("Exporting...")
+        overlay = self.export_overlay("Exporting...")
         try:
-            data_frames = analyze_data(self.account_history_path, self.radio_var.get())
+            data_frames = analyze_data(self.account_history_path, self.radio_var.get(), self.custom_date_range)
         except:
             tk.messagebox.showerror("Error", f"An error occurred while analyzing the data.")
             overlay.destroy()
@@ -255,12 +280,99 @@ class GUI:
             return
 
         overlay.destroy()
+    
+    def custom_time_window(self) -> None:
+        """Create an overlay to select a custom time frame"""
+        overlay = self.create_overlay(300, 150)
 
-    def on_enter(self, event: tk.Event) -> None:
-        """Change button border when mouse hovers over it"""
-        event.widget.original_borderwidth = event.widget.cget("borderwidth")
-        event.widget.config(borderwidth=3)
+        # Create a container frame with padding
+        container_frame = tk.Frame(overlay)
+        container_frame.pack(fill=tk.BOTH, expand=True)
+        container_frame.config(padx=20, pady=20)
 
-    def on_leave(self, event: tk.Event) -> None:
-        """Change button border back to normal when mouse leaves"""
-        event.widget.config(borderwidth=event.widget.original_borderwidth)
+        # Frame to hold date stuff
+        date_frame = tk.Frame(container_frame)
+        date_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Frame to hold date labels
+        date_labels = tk.Frame(date_frame)
+        date_labels.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Create a frame to hold the entrys
+        date_entrys = tk.Frame(date_frame)
+        date_entrys.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        def cancel():
+            """Cancel the custom date range selection"""
+            if self.custom_date_range[0] and self.custom_date_range[1]:
+                self.radio_var.set(5)
+            else:
+                self.radio_var.set(4)
+            overlay.destroy()
+
+        def apply(start, end):
+            """Set the custom date range"""
+            if start and end:
+                pattern = r"^\d{4}-\d{2}-\d{2}$"
+                if re.match(pattern, start) and re.match(pattern, end):
+                    self.custom_date_range = (start, end)
+                    overlay.destroy()
+                else:
+                    tk.messagebox.showerror("Error", "Invalid date format. Please use YYYY/MM/DD.")
+            else:
+                tk.messagebox.showerror("Error", "Please enter a start and end date.")
+
+        def add_placeholder(entry, placeholder):
+            """Add a placeholder to the entry field"""
+            entry.insert(0, placeholder)
+            entry.config(fg='grey')
+
+            def clear_placeholder(event):
+                """Clear the placeholder when the entry is clicked on"""
+                if entry.get() == placeholder:
+                    entry.delete(0, tk.END)
+                    entry.config(fg='black')
+
+            def insert_placeholder(event):
+                """Insert the placeholder when the entry is clicked off of and it is empty"""
+                if entry.get() == '':
+                    entry.insert(0, placeholder)
+                    entry.config(fg='grey')
+
+            entry.bind('<FocusIn>', clear_placeholder)
+            entry.bind('<FocusOut>', insert_placeholder)
+
+        # Create date range picker
+        start_label = tk.Label(date_labels, text="Start Date", font=self.theme['normal_font'])
+        start_label.pack(side=tk.TOP, anchor=tk.W)
+
+        start_entry = tk.Entry(date_entrys, font=self.theme['normal_font'])
+        if self.custom_date_range[0]:
+            start_entry.insert(0, self.custom_date_range[0])
+        else:
+            add_placeholder(start_entry, 'YYYY-MM-DD')
+        start_entry.pack(side=tk.TOP, anchor=tk.W)
+
+        end_label = tk.Label(date_labels, text="End Date", font=self.theme['normal_font'])
+        end_label.pack(side=tk.TOP, anchor=tk.W)
+
+        end_entry = tk.Entry(date_entrys, font=self.theme['normal_font'])
+        if self.custom_date_range[1]:
+            end_entry.insert(0, self.custom_date_range[1])
+        else:
+            add_placeholder(end_entry, 'YYYY-MM-DD')
+        end_entry.pack(side=tk.TOP, anchor=tk.W)
+
+        # Create a frame to hold the buttons
+        button_frame = tk.Frame(container_frame)
+        button_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Create the cancel button
+        cancel_button = tk.Button(button_frame, text="Cancel", command=cancel)
+        cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=10)
+        cancel_button.pack(side=tk.LEFT)
+
+        # Create the apply button
+        apply_button = tk.Button(button_frame, text="Apply", command=lambda: apply(start_entry.get(), end_entry.get()))
+        apply_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=10)
+        apply_button.pack(side=tk.RIGHT)
