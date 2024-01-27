@@ -8,19 +8,12 @@ Compile Instructions:
     pyinstaller --noconfirm --onefile --windowed --add-data "path/to/version.txt;."  "path/to/main.py"
 """
 
+import os
 import sys
+import pyupgrader
 from source.gui import GUI
-from pathlib import Path
 
-try:
-    with open(Path(__file__).resolve().parent / "version.txt", "r") as f:
-        current_version = str(f.read().strip())
-except BaseException:
-    current_version = None
-
-program_url = "https://github.com/Trogiken/stock-scripts/tree/master/Report-Analyzer"
-version_url = "https://raw.githubusercontent.com/Trogiken/stock-scripts/master/Report-Analyzer/version.txt"
-
+man = pyupgrader.UpdateManager(r'https://raw.githubusercontent.com/Trogiken/stock-scripts/pyupgrader-integration/Report-Analyzer/.pyupgrader', os.path.dirname(__file__))
 
 if __name__ == '__main__':
     os = None
@@ -35,4 +28,4 @@ if __name__ == '__main__':
         input("\nPress ENTER to exit...")
         sys.exit()
     
-    GUI(os, current_version, version_url, program_url)
+    GUI(os, man)
