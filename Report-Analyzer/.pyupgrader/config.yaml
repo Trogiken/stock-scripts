@@ -1,0 +1,6 @@
+cleanup: true
+description: Update Support
+hash_db: hashes.db
+required_only: true
+startup_path: 'main.py'
+version: 2.5.6b1

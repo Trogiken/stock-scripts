@@ -1,14 +1,15 @@
 import sys
 import time
 import re
+import os
 from source.csv_functions import analyze_data, export_html
-from source.version_check import get_latest
 
 try:
     import tkinter as tk
     import pandas as pd
     import subprocess
     import webbrowser
+    import pyupgrader
     from PIL import Image, ImageTk
     from tkinter import filedialog
 except ImportError as e:
@@ -23,7 +24,7 @@ class GUI:
 
     Attributes:
         os (str): The operating system the program is running on
-        version (str): The version of the program
+        update_manager (pyupgrader.UpdateManager): The update manager
         theme (dict): The theme of the GUI
         root (tk.Tk): The Tkinter root
         content_frame (tk.Frame): The frame that contains all the other frames
@@ -46,7 +47,9 @@ class GUI:
         on_leave(event: tk.Event) -> None: Change button border back to normal when mouse leaves
         custom_time_window() -> None: Create a new window to select a custom time frame
     """
-    def __init__(self, os, version, version_url, program_url):
+    def __init__(self, os, update_manager: pyupgrader.UpdateManager):
+        self.update_man = update_manager
+        
         if os == 'windows':
             theme = {
                 "os": "windows",
@@ -81,9 +84,6 @@ class GUI:
             raise ValueError("Invalid operating system")
 
         self.theme = theme
-        self.version = version
-        self.version_url = version_url
-        self.program_url = program_url
 
         # Create the Tkinter root
         self.root = tk.Tk()
@@ -103,15 +103,22 @@ class GUI:
         if self.theme["os"] == "windows":
             self.container_frame.config(padx=20, pady=20)
         
-        # Create a frame to hold the update inidicator
-        latest = get_latest(self.version_url)
-        if (self.version is not None) and (latest is not None) and (self.version != latest):
-            self.update_frame = tk.Frame(self.container_frame)
-            # DEBUG Changes to fill=tk.X expand=True and removed spacer
-            self.update_frame.pack(fill=tk.X, expand=True)
-            self.update_button = tk.Button(self.update_frame, text="Update Available", command=self.hide_update_frame)
-            self.update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=30)
-            self.update_button.pack()
+        update_check = self.update_man.check_update()
+        if update_check.get('has_update'):
+            self.update_overlay = self.create_overlay(300, 100)
+            version_change_label = tk.Label(self.update_overlay, text=f"Version {update_check.get('local_version')} -> {update_check.get('web_version')}", font=self.theme['normal_font'])
+            version_change_label.pack(side=tk.TOP, anchor=tk.N, pady=10)
+
+            # update button
+            update_button = tk.Button(self.update_overlay, text="Update", command=self.update_button)
+            update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=15)
+            update_button.pack(side=tk.LEFT, anchor=tk.CENTER, padx=5)
+
+            # cancel button
+            cancel_button = tk.Button(self.update_overlay, text="Cancel", command=self.cancel_update_button)
+            cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=15)
+            cancel_button.pack(side=tk.LEFT, anchor=tk.CENTER, padx=5)
+            
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -162,7 +169,7 @@ class GUI:
         self.export_button.bind("<Leave>", self.on_leave)
 
         # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {self.version if self.version is not None else 'Unknown'}", font=self.theme['small_font'])
+        version_label = tk.Label(self.version_frame, text=f"Version {update_check.get('local_version')}", font=self.theme['small_font'])
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
@@ -184,10 +191,27 @@ class GUI:
         else:
             webbrowser.open(location)
     
-    def hide_update_frame(self) -> None:
-        """Open github page and hide button"""
-        self.open_html(self.program_url)
-        self.update_frame.destroy()
+    def update_button(self) -> None:
+        """Update the program"""
+        self.update_overlay.destroy()
+        overlay = self.loading_overlay("Updating...", 0)  # Show overlay
+
+        try:
+            lock = self.update_man.update()
+        except pyupgrader.update.NoUpdateError:
+            tk.messagebox.showerror("Error", "No update available.")
+            overlay.destroy()
+            return
+
+        if os.path.exists(lock):
+            os.remove(lock)
+
+        overlay.destroy()
+        sys.exit()
+
+    def cancel_update_button(self) -> None:
+        """Hide button"""
+        self.update_overlay.destroy()
     
     def is_valid_csv(self, file_path: str) -> bool:
         """Check if the selected CSV file is valid"""
@@ -200,7 +224,7 @@ class GUI:
         except:
             return False
         
-    def export_overlay(self, message: str) -> tk.Label:
+    def loading_overlay(self, message: str, duration: int, delete_after_sleep: bool = False) -> tk.Label:
         """Create a semi-transparent overlay with a message in the center"""
         width = self.root.winfo_width()
         height = self.root.winfo_height()
@@ -218,7 +242,11 @@ class GUI:
         label.place(relx=0.5, rely=0.5, anchor='c')
 
         self.root.update()
-        time.sleep(1)
+        time.sleep(duration)
+
+        if delete_after_sleep:
+            overlay.destroy()
+            return None
 
         return overlay
     
@@ -234,7 +262,6 @@ class GUI:
 
         return overlay
 
-    
     def get_account_path(self) -> None:
         """Open csv file and store path"""
         csv_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
@@ -261,7 +288,7 @@ class GUI:
         if not export_location:
             return
         
-        overlay = self.export_overlay("Exporting...")
+        overlay = self.loading_overlay("Exporting...", 1)
         try:
             data_frames = analyze_data(self.account_history_path, self.radio_var.get(), self.custom_date_range)
         except:
