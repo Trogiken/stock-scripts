@@ -13,7 +13,7 @@ import sys
 import pyupgrader
 from source.gui import GUI
 
-man = pyupgrader.UpdateManager(r'https://raw.githubusercontent.com/Trogiken/stock-scripts/pyupgrader-integration/Report-Analyzer/.pyupgrader', os.path.dirname(__file__))
+man = pyupgrader.UpdateManager(r'https://raw.githubusercontent.com/Trogiken/stock-scripts/master/Report-Analyzer/.pyupgrader', os.path.dirname(__file__))
 
 if __name__ == '__main__':
     os = None
