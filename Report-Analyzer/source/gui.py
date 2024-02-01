@@ -197,17 +197,14 @@ class GUI:
         overlay = self.loading_overlay("Updating...", 0)  # Show overlay
 
         try:
-            lock = self.update_man.update()
+            options = self.update_man.prepare_update()
         except pyupgrader.update.NoUpdateError:
             tk.messagebox.showerror("Error", "No update available.")
             overlay.destroy()
             return
 
-        if os.path.exists(lock):
-            os.remove(lock)
-
-        overlay.destroy()
-        sys.exit()
+        if os.path.exists(options):
+            self.update_man.update(options)
 
     def cancel_update_button(self) -> None:
         """Hide button"""
