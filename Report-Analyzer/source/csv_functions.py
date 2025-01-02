@@ -85,9 +85,9 @@ def analyze_data(account_history_path: str, time_frame: int, custom_range=(None,
             df_dict[time_interval] = {"details": [], "commission": 0.0}
 
         if "Commission" in row['Action']:  # Add commission to the total and skip rest of processing
-            df_dict[time_interval]["commission"] += float(row['P&L'])
+            df_dict[time_interval]["commission"] += float(row['Realized P&L (value)'])
             continue
-        
+
         # Add the trade details to the dictionary for the time interval
         df_dict[time_interval]["details"].append({
             'Time': row['Time'],

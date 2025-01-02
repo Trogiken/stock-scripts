@@ -226,7 +226,7 @@ class GUI:
         try:
             csv_file = pd.read_csv(file_path, sep=',')
             for column in csv_file.columns:
-                if column not in ['Time', 'Balance Before', 'Balance After', 'P&L', 'Action']:
+                if column not in ['Time', 'Balance Before', 'Balance After', 'Realized P&L (value)', 'Realized P&L (currency)', 'Action']:
                     return False
             return True
         except Exception:
