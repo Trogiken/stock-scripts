@@ -1,7 +1,6 @@
 import sys
 import time
 import re
-import os
 from source.csv_functions import analyze_data, export_html
 
 try:
@@ -9,7 +8,6 @@ try:
     import pandas as pd
     import subprocess
     import webbrowser
-    import pyupgrader
     from PIL import Image, ImageTk
     from tkinter import filedialog
 except ImportError as e:
@@ -47,10 +45,8 @@ class GUI:
         on_leave(event: tk.Event) -> None: Change button border back to normal when mouse leaves
         custom_time_window() -> None: Create a new window to select a custom time frame
     """
-    def __init__(self, os, update_manager: pyupgrader.UpdateManager):
-        self.update_man = update_manager
-        
-        if os == 'windows':
+    def __init__(self, os_type: str, version: str):
+        if os_type == 'windows':
             theme = {
                 "os": "windows",
                 "acc_btn_active_bg": "green",
@@ -65,7 +61,7 @@ class GUI:
                 "normal_font": ('Arial', 12),
                 "small_font": ('Arial', 10)
             }
-        elif os == 'unix':
+        elif os_type == 'unix':
             theme = {
                 "os": "unix",
                 "acc_btn_active_bg": "white",
@@ -95,30 +91,15 @@ class GUI:
         # Create a frame with padding
         self.content_frame = tk.Frame(self.root)
         self.content_frame.pack(fill=tk.BOTH, expand=True)
-        self.content_frame.config(padx=15, pady=15, background='teal', highlightbackground='black', highlightthickness=2)
+        self.content_frame.config(
+            padx=15, pady=15, background='teal', highlightbackground='black', highlightthickness=2
+        )
 
         # Create a container frame
         self.container_frame = tk.Frame(self.content_frame)
         self.container_frame.pack(fill=tk.BOTH, expand=True)
         if self.theme["os"] == "windows":
             self.container_frame.config(padx=20, pady=20)
-        
-        update_check = self.update_man.check_update()
-        if update_check.get('has_update'):
-            self.update_overlay = self.create_overlay(300, 100)
-            version_change_label = tk.Label(self.update_overlay, text=f"Version {update_check.get('local_version')} -> {update_check.get('web_version')}", font=self.theme['normal_font'])
-            version_change_label.pack(side=tk.TOP, anchor=tk.N, pady=10)
-
-            # update button
-            update_button = tk.Button(self.update_overlay, text="Update", command=self.update_button)
-            update_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=15)
-            update_button.pack(side=tk.LEFT, anchor=tk.CENTER, padx=5)
-
-            # cancel button
-            cancel_button = tk.Button(self.update_overlay, text="Cancel", command=self.cancel_update_button)
-            cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=15)
-            cancel_button.pack(side=tk.LEFT, anchor=tk.CENTER, padx=5)
-            
 
         # Create a horizontal frame for radio buttons
         self.radio_button_frame = tk.Frame(self.container_frame)
@@ -133,7 +114,7 @@ class GUI:
         self.version_frame.pack(fill=tk.BOTH, expand=True)
         if self.theme["os"] == "unix":
             self.version_frame.config(padx=10, pady=10)
-        
+
         # Initialize values
         self.radio_var = tk.IntVar()
         self.radio_var.set(4)
@@ -145,20 +126,66 @@ class GUI:
         report_title_label.pack(side=tk.TOP, anchor=tk.N)
         report_title_label.config(font=self.theme["title_font"])
 
-        tk.Radiobutton(self.radio_button_frame, text="Daily", variable=self.radio_var, value=1, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Monthly", variable=self.radio_var, value=2, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Quarterly", variable=self.radio_var, value=3, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Yearly", variable=self.radio_var, value=4, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
-        tk.Radiobutton(self.radio_button_frame, text="Custom", command=self.custom_time_window, variable=self.radio_var, value=5, font=self.theme['normal_font']).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(
+            self.radio_button_frame,
+            text="Daily",
+            variable=self.radio_var,
+            value=1,
+            font=self.theme['normal_font']
+        ).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(
+            self.radio_button_frame,
+            text="Monthly",
+            variable=self.radio_var,
+            value=2,
+            font=self.theme['normal_font']
+        ).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(
+            self.radio_button_frame,
+            text="Quarterly",
+            variable=self.radio_var,
+            value=3,
+            font=self.theme['normal_font']
+        ).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(
+            self.radio_button_frame,
+            text="Yearly",
+            variable=self.radio_var,
+            value=4,
+            font=self.theme['normal_font']
+        ).pack(side=tk.LEFT, anchor=tk.N)
+        tk.Radiobutton(
+            self.radio_button_frame,
+            text="Custom",
+            command=self.custom_time_window,
+            variable=self.radio_var,
+            value=5,
+            font=self.theme['normal_font']
+        ).pack(side=tk.LEFT, anchor=tk.N)
 
         # Account History button
-        self.acc_button = tk.Button(self.file_button_frame, text="Select Account History CSV", command=self.get_account_path)
-        self.acc_button.configure(bg=self.theme['acc_btn_disabled_bg'], fg=self.theme['acc_btn_disabled_fg'], font=self.theme['normal_font'], width=30)
+        self.acc_button = tk.Button(
+            self.file_button_frame,
+            text="Select Account History CSV",
+            command=self.get_account_path
+        )
+        self.acc_button.configure(
+            bg=self.theme['acc_btn_disabled_bg'],
+            fg=self.theme['acc_btn_disabled_fg'],
+            font=self.theme['normal_font'],
+            width=30
+        )
         self.acc_button.pack(pady=2)
 
         # Export HTML button
-        self.export_button = tk.Button(self.file_button_frame, text="Export HTML", command=self.export)
-        self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=30, state=tk.DISABLED)
+        self.export_button = tk.Button(
+            self.file_button_frame, text="Export HTML", command=self.export
+        )
+        self.export_button.configure(
+            bg=self.theme['expo_btn_disabled_bg'],
+            disabledforeground=self.theme['expo_btn_disabled_fg'],
+            font=self.theme['normal_font'], width=30, state=tk.DISABLED
+        )
         self.export_button.pack(pady=2)
 
         # Bind enter and leave events to change button borders
@@ -169,7 +196,9 @@ class GUI:
         self.export_button.bind("<Leave>", self.on_leave)
 
         # Create version label
-        version_label = tk.Label(self.version_frame, text=f"Version {update_check.get('local_version')}", font=self.theme['small_font'])
+        version_label = tk.Label(
+            self.version_frame, text=f"Version {version}", font=self.theme['small_font']
+        )
         version_label.pack(side=tk.RIGHT, anchor=tk.S)
 
         self.root.mainloop()
@@ -182,34 +211,16 @@ class GUI:
     def on_leave(self, event: tk.Event) -> None:
         """Change button border back to normal when mouse leaves"""
         event.widget.config(borderwidth=event.widget.original_borderwidth)
-    
+
     def open_html(self, location: str) -> None:
+        """Open the html file in the default browser"""
         if sys.platform.startswith('darwin'):  # Mac
             subprocess.call(('open', location))
         elif sys.platform.startswith('linux'):  # Linux
             subprocess.call(('xdg-open', location))
         else:
             webbrowser.open(location)
-    
-    def update_button(self) -> None:
-        """Update the program"""
-        self.update_overlay.destroy()
-        overlay = self.loading_overlay("Updating...", 0)  # Show overlay
 
-        try:
-            options = self.update_man.prepare_update()
-        except pyupgrader.update.NoUpdateError:
-            tk.messagebox.showerror("Error", "No update available.")
-            overlay.destroy()
-            return
-
-        if os.path.exists(options):
-            self.update_man.update(options)
-
-    def cancel_update_button(self) -> None:
-        """Hide button"""
-        self.update_overlay.destroy()
-    
     def is_valid_csv(self, file_path: str) -> bool:
         """Check if the selected CSV file is valid"""
         try:
@@ -218,10 +229,12 @@ class GUI:
                 if column not in ['Time', 'Balance Before', 'Balance After', 'P&L', 'Action']:
                     return False
             return True
-        except:
+        except Exception:
             return False
-        
-    def loading_overlay(self, message: str, duration: int, delete_after_sleep: bool = False) -> tk.Label:
+
+    def loading_overlay(
+            self, message: str, duration: int, delete_after_sleep: bool = False
+        ) -> tk.Label:
         """Create a semi-transparent overlay with a message in the center"""
         width = self.root.winfo_width()
         height = self.root.winfo_height()
@@ -234,8 +247,8 @@ class GUI:
         overlay = tk.Label(self.root, image=photo)
         overlay.image = photo  # Keep a reference to the image
         overlay.place(x=0, y=0, relwidth=1, relheight=1)
-        
-        label = tk.Label(overlay, text=message, font=self.theme['title_font'], bg="grey")  # TODO Fix weird label background
+
+        label = tk.Label(overlay, text=message, font=self.theme['title_font'], bg="grey")
         label.place(relx=0.5, rely=0.5, anchor='c')
 
         self.root.update()
@@ -246,7 +259,7 @@ class GUI:
             return None
 
         return overlay
-    
+
     def create_overlay(self, width, height) -> tk.Label:
         """Create an overlay"""
         if height > self.root.winfo_height() or width > self.root.winfo_width():
@@ -264,47 +277,60 @@ class GUI:
         csv_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
         if not csv_path:
             return
-        
+
         if self.is_valid_csv(csv_path):
             self.account_history_path = csv_path
-            self.acc_button.configure(bg=self.theme['acc_btn_active_bg'], fg=self.theme['acc_btn_active_fg'])
-            self.export_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'])
+            self.acc_button.configure(
+                bg=self.theme['acc_btn_active_bg'], fg=self.theme['acc_btn_active_fg']
+            )
+            self.export_button.configure(
+                bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg']
+            )
             self.export_button.configure(state=tk.NORMAL)
         else:
-            tk.messagebox.showerror("Error", f"Please select a valid 'Account History' file.")
+            tk.messagebox.showerror("Error", "Please select a valid 'Account History' file.")
             self.account_history_path = ""
-            self.export_button.configure(bg=self.theme['expo_btn_disabled_bg'], disabledforeground=self.theme['expo_btn_disabled_fg'])
+            self.export_button.configure(
+                bg=self.theme['expo_btn_disabled_bg'],
+                disabledforeground=self.theme['expo_btn_disabled_fg']
+            )
             self.export_button.configure(state=tk.DISABLED)
 
     def export(self) -> None:
         """Check if both csv files are selected, analyze data, and export html file"""
         if not self.account_history_path:
             return
-        
-        export_location = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
+
+        export_location = filedialog.asksaveasfilename(
+            defaultextension=".html", filetypes=[("HTML Files", "*.html")]
+        )
         if not export_location:
             return
-        
+
         overlay = self.loading_overlay("Exporting...", 1)
         try:
-            data_frames = analyze_data(self.account_history_path, self.radio_var.get(), self.custom_date_range)
-        except:
-            tk.messagebox.showerror("Error", f"An error occurred while analyzing the data.")
+            data_frames = analyze_data(
+                self.account_history_path, self.radio_var.get(), self.custom_date_range
+            )
+        except Exception:
+            tk.messagebox.showerror("Error", "An error occurred while analyzing the data.")
             overlay.destroy()
             return
-        
+
         try:
             export_html(data_frames, export_location)
             overlay.destroy()
-            if tk.messagebox.askyesno("Success", "HTML file exported successfully. Do you want to open it?"):
+            if tk.messagebox.askyesno(
+                "Success", "HTML file exported successfully. Do you want to open it?"
+                ):
                 self.open_html(export_location)
-        except:
+        except Exception:
             tk.messagebox.showerror("Error", "An error occurred while exporting the HTML file.")
             overlay.destroy()
             return
 
         overlay.destroy()
-    
+
     def custom_time_window(self) -> None:
         """Create an overlay to select a custom time frame"""
         overlay = self.create_overlay(300, 150)
@@ -351,13 +377,13 @@ class GUI:
             entry.insert(0, placeholder)
             entry.config(fg='grey')
 
-            def clear_placeholder(event):
+            def clear_placeholder(_):
                 """Clear the placeholder when the entry is clicked on"""
                 if entry.get() == placeholder:
                     entry.delete(0, tk.END)
                     entry.config(fg='black')
 
-            def insert_placeholder(event):
+            def insert_placeholder(_):
                 """Insert the placeholder when the entry is clicked off of and it is empty"""
                 if entry.get() == '':
                     entry.insert(0, placeholder)
@@ -393,10 +419,22 @@ class GUI:
 
         # Create the cancel button
         cancel_button = tk.Button(button_frame, text="Cancel", command=cancel)
-        cancel_button.configure(bg=self.theme['expo_btn_disabled_bg'], fg=self.theme['expo_btn_disabled_fg'], font=self.theme['normal_font'], width=10)
+        cancel_button.configure(
+            bg=self.theme['expo_btn_disabled_bg'],
+            fg=self.theme['expo_btn_disabled_fg'],
+            font=self.theme['normal_font'],
+            width=10
+        )
         cancel_button.pack(side=tk.LEFT)
 
         # Create the apply button
-        apply_button = tk.Button(button_frame, text="Apply", command=lambda: apply(start_entry.get(), end_entry.get()))
-        apply_button.configure(bg=self.theme['expo_btn_active_bg'], fg=self.theme['expo_btn_active_fg'], font=self.theme['normal_font'], width=10)
+        apply_button = tk.Button(
+            button_frame, text="Apply", command=lambda: apply(start_entry.get(), end_entry.get())
+        )
+        apply_button.configure(
+            bg=self.theme['expo_btn_active_bg'],
+            fg=self.theme['expo_btn_active_fg'],
+            font=self.theme['normal_font'],
+            width=10
+        )
         apply_button.pack(side=tk.RIGHT)

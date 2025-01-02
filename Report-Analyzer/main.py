@@ -8,24 +8,23 @@ Compile Instructions:
     pyinstaller --noconfirm --onefile --windowed "path/to/main.py"
 """
 
-import os
 import sys
-import pyupgrader
 from source.gui import GUI
 
-man = pyupgrader.UpdateManager(r'https://raw.githubusercontent.com/Trogiken/stock-scripts/master/Report-Analyzer/.pyupgrader', os.path.dirname(__file__))
+VERSION = "2.5.6b1"
+
 
 if __name__ == '__main__':
-    os = None
+    OS_TYPE = None
 
     # check operating system
     if sys.platform.startswith('win'):
-        os = "windows"
+        OS_TYPE = "windows"
     elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
-        os = "unix"
+        OS_TYPE = "unix"
     else:
         print("This program is not compatible with your operating system.")
         input("\nPress ENTER to exit...")
         sys.exit()
-    
-    GUI(os, man)
+
+    GUI(OS_TYPE, VERSION)
